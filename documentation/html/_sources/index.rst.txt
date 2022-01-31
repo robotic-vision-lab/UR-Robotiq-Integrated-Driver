@@ -11,7 +11,9 @@ Universal Robots (UR) ROS Driver with additional support for Robotiq gripper (cu
 attached to the UR tool port.
 
 This driver also provides additional function for actuating the gripper in various modes (grasp on open/close, specific
-jaw gap, etc.) as well as integrating MoveIt! motion planning that tracks the entire setup, UR and Robotiq gripper. 
+jaw gap, etc.) as well as integrating MoveIt! motion planning that tracks the entire setup, UR and Robotiq gripper.
+
+At the time of writing, the driver is working on our setup on both Windows 10 (Version	10.0.19044 Build 19044) and Ubuntu 20.04.
 
 .. toctree::
    :maxdepth: 2

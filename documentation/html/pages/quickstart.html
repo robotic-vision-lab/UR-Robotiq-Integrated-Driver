@@ -59,6 +59,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#building-and-running-ros">Building and Running ROS</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">RVL UR-Robotiq API</a></li>
@@ -215,6 +216,13 @@ below.</p>
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline"></a></h2>
+<p>Since this driver is built inside a Docker container, the most common issue is networking. A good place to start is if all the ports (or network
+interface) is exposed properly, the robot IP is correct, and there is nothing interfering with ROS communications both ways. Otherwise, the host
+OS should not be a problem.</p>
+<p>However, should any issues arise, please <a class="reference external" href="https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver/issues">open an issue on our GitHub repository</a>.</p>
 </div>
 </div>
 

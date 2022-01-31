@@ -140,3 +140,11 @@ $ rebuild_catkin
 
 $ roslaunch <your_stuff>
 ```
+
+## Debugging
+
+Since this driver is built inside a Docker container, the most common issue is networking. A good place to start is if all the ports (or network
+interface) is exposed properly, the robot IP is correct, and there is nothing interfering with ROS communications both ways. Otherwise, the host
+OS should not be a problem. 
+
+However, should any issues arise, please [open an issue on our GitHub repository](https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver/issues). 
