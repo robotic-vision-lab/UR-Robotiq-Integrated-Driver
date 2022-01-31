@@ -2,7 +2,7 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.2.0
-title: RVL UR5e-Robotiq Integrated Driver
+title: RVL UR-Robotiq Integrated Driver
 version: 0.0.1-alpha
 date-released: "2022-01-24"
 message: If you use this software, please cite it using these metadata.
@@ -15,4 +15,4 @@ authors:
     affiliation: >-
       The University of Texas at Arlington - Robotic
       Vision Laboratory
-url: "https://github.com/robotic-vision-lab/UR5e-Robotiq-Integrated-Driver"
+url: "https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver"
