@@ -507,3 +507,13 @@ qtcreator-*
 
 # Catkin custom files
 CATKIN_IGNORE
+
+# Sphinx generated files
+latexmkjarc
+latexmkrc
+make.bat
+Makefile
+python.ist
+*.sty
+*.cls
+*.tex

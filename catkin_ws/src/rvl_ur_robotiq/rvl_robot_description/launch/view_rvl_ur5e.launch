@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robot_xacro" default="$(find rvl_robot_description)/xacro/rvl_ur5e.xacro"/>
+    <arg name="rviz_config" default="$(find rvl_robot_description)/configs/view_rvl_ur5e.rviz" />
+    <arg name="gui" default="true" />
+
+    <param name="robot_description" command="$(find xacro)/xacro $(arg robot_xacro)" />
+    <param name="use_gui" value="$(arg gui)"/>
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" required="true" />
+</launch>

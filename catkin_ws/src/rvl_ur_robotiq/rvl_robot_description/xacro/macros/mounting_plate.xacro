@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mounting_plate">
+
+    <xacro:macro name="mounting_plate" params="prefix name">
+        <link name="${prefix}${name}">
+            <!-- <inertial>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <mass value="0.0"/>
+                <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+            </inertial> -->
+            <visual name="">
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <mesh filename="package://rvl_robot_description/models/mounting_plate.stl" />
+                </geometry>
+                <material name="opague_plastic">
+                    <color rgba="1.0 1.0 1.0 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <origin xyz="0.0 ${0.185/4} ${0.0053/2}" rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="0.075 0.185 0.0053"/>
+                </geometry>
+            </collision>
+        </link>
+    </xacro:macro>
+
+</robot>

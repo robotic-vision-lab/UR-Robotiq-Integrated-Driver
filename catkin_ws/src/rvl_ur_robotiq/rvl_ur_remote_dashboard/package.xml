@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rvl_ur_remote_dashboard</name>
+  <version>0.0.1</version>
+  <description>The RVL UR e-series Remote Control package</description>
+
+  <maintainer email="minh.tram@mavs.uta.edu">Minh "Jerry" Tram</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- generate custom messages -->
+  <build_depend>message_generation</build_depend>
+
+  <!-- Python 3 packages -->
+  <depend>python3-pymodbus</depend>
+  <depend>python3-numpy</depend>
+
+  <!-- ROS standard packages -->
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>ur_dashboard_msgs</depend>
+
+  <!-- MoveIt! packages -->
+  <exec_depend>moveit_ros_move_group</exec_depend>
+  <exec_depend>moveit_fake_controller_manager</exec_depend>
+  <exec_depend>moveit_kinematics</exec_depend>
+  <exec_depend>moveit_planners_ompl</exec_depend>
+  <exec_depend>moveit_ros_visualization</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
+  <exec_depend>moveit_msgs</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  
+  <!-- Sphinx docs -->
+  <export>
+    <rosdoc config="rosdoc.yaml"/>    
+  </export>
+</package>

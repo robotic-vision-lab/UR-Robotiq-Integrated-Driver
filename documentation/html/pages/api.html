@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RVL UR-Robotiq API &mdash; RVL UR-Robotiq Integrated Driver Documentation 0.0.1-alpha documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="rvl_robotiq_controller ROS Package" href="../_modules/robotiq/modules.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> RVL UR-Robotiq Integrated Driver Documentation
+          </a>
+              <div class="version">
+                0.0.1-alpha
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">RVL UR-Robotiq API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#imports">Imports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modules-quick-access">Modules Quick Access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#full-modules-documentation">Full Modules Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gripper-control">Gripper Control</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_modules/robotiq/modules.html">rvl_robotiq_controller ROS Package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#ur-dashboard-control">UR Dashboard Control</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_modules/universal_robots/modules.html">rvl_ur_remote_dashboard ROS Package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#utilities">Utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_modules/rvl_utils/modules.html">rvl_utilities ROS Package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ide.html">Development Environment (DE) Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">RVL UR-Robotiq Integrated Driver Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>RVL UR-Robotiq API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pages/api.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="rvl-ur-robotiq-api">
+<h1>RVL UR-Robotiq API<a class="headerlink" href="#rvl-ur-robotiq-api" title="Permalink to this headline"></a></h1>
+<p>Due to how ROS structured Python source code and workspace setup, the module/package
+terminology usage might be confusing here.</p>
+<div class="section" id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Permalink to this headline"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rvl_robotiq_controller.RobotiqController</span> <span class="kn">import</span> <span class="n">Robotiq2FController</span>
+<span class="kn">from</span> <span class="nn">rvl_ur_remote_dashboard.URRemoteDashboard</span> <span class="kn">import</span> <span class="n">URRemoteDashboard</span>
+<span class="kn">from</span> <span class="nn">rvl_ur_motion_planner.URMoveitCommander</span> <span class="kn">import</span> <span class="n">URCommander</span>
+</pre></div>
+</div>
+<p>These are the primary modules and classes that covers most of the use case. The supporting
+functions might provide additional insights and is accessible as well.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Robotiq2FController</span></code> is a wrapper to control Robotiq 2F grippers.</p>
+<p><code class="docutils literal notranslate"><span class="pre">URRemoteDashboard</span></code> is a wrapper for handling services and status monitoring as described on
+<a class="reference external" href="https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/c3378599d5fa73a261328b326392e847f312ab6b/ur_robot_driver/doc/ROS_INTERFACE.md">ROS Interface page in UR Driver Repository</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">URCommander</span></code> is a wrapper for <code class="docutils literal notranslate"><span class="pre">MoveIt!</span></code> with some function built-in (pose goal, joint goal, etc.). Additionals features are planned in future releases.</p>
+</div>
+<div class="section" id="modules-quick-access">
+<h2>Modules Quick Access<a class="headerlink" href="#modules-quick-access" title="Permalink to this headline"></a></h2>
+<p>These are links to quickly access modules mentioned under Import section. Otherwise, the full
+documentation of the entire driver is in the next section. Documentation will continue to be updated
+and covers more modules as the driver is being developed.</p>
+<p><a class="reference internal" href="../_modules/robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController" title="rvl_robotiq_controller.RobotiqController.Robotiq2FController"><code class="xref py py-class docutils literal notranslate"><span class="pre">rvl_robotiq_controller.RobotiqController.Robotiq2FController</span></code></a></p>
+<p><a class="reference internal" href="../_modules/universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard" title="rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard"><code class="xref py py-class docutils literal notranslate"><span class="pre">rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard</span></code></a></p>
+<p><a class="reference internal" href="../_modules/universal_robots/rvl_ur_motion_planner.html#rvl_ur_motion_planner.URMoveitCommander.URCommander" title="rvl_ur_motion_planner.URMoveitCommander.URCommander"><code class="xref py py-class docutils literal notranslate"><span class="pre">rvl_ur_motion_planner.URMoveitCommander.URCommander</span></code></a></p>
+</div>
+<div class="section" id="full-modules-documentation">
+<h2>Full Modules Documentation<a class="headerlink" href="#full-modules-documentation" title="Permalink to this headline"></a></h2>
+<div class="section" id="gripper-control">
+<h3>Gripper Control<a class="headerlink" href="#gripper-control" title="Permalink to this headline"></a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_modules/robotiq/modules.html">rvl_robotiq_controller ROS Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_modules/robotiq/rvl_robotiq_controller.html">rvl_robotiq_controller package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_modules/robotiq/rvl_robotiq_modbus_server.html">rvl_robotiq_modbus_server package</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="ur-dashboard-control">
+<h3>UR Dashboard Control<a class="headerlink" href="#ur-dashboard-control" title="Permalink to this headline"></a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_modules/universal_robots/modules.html">rvl_ur_remote_dashboard ROS Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_modules/universal_robots/rvl_ur_motion_planner.html">rvl_ur_motion_planner package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_modules/universal_robots/rvl_ur_remote_dashboard.html">rvl_ur_remote_dashboard package</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="utilities">
+<h3>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline"></a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_modules/rvl_utils/modules.html">rvl_utilities ROS Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_modules/rvl_utils/rvl_utilities.html">rvl_utilities package</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../_modules/robotiq/modules.html" class="btn btn-neutral float-right" title="rvl_robotiq_controller ROS Package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Minh Tram.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

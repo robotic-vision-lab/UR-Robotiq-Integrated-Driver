@@ -1,0 +1,3 @@
+[submodule "catkin_ws/src/ur_ros1_driver"]
+	path = catkin_ws/src/ur_ros1_driver
+	url = https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git

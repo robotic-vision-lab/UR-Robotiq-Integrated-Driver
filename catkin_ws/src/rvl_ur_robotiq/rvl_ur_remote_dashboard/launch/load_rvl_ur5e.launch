@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+    <!--ur5e parameters files -->
+    <arg name="joint_limit_params" default="$(find rvl_robot_description)/configs/ur5e/joint_limits.yaml" doc="YAML file containing the joint limit values" />
+    <arg name="kinematics_params" default="$(find rvl_robot_description)/configs/ur5e/default_kinematics.yaml" doc="YAML file containing the robot's kinematic parameters. These will be different for each robot as they contain the robot's calibration." />
+    <arg name="physical_params" default="$(find rvl_robot_description)/configs/ur5e/physical_parameters.yaml" doc="YAML file containing the phycical parameters of the robots" />
+    <arg name="visual_params" default="$(find rvl_robot_description)/configs/ur5e/visual_parameters.yaml" doc="YAML file containing the visual model of the robots" />
+
+    <!--common parameters -->
+    <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface" />
+    <arg name="safety_limits" default="false" doc="If True, enable the safety limits controller"/>
+    <arg name="safety_pos_margin" default="0.15" doc="The lower/upper limits in the safety controller" />
+    <arg name="safety_k_position" default="20" doc="Used to set k position in the safety controller" />
+
+    <!-- use common launch file and pass all arguments to it -->
+    <param name="robot_description" command="$(find xacro)/xacro '$(find rvl_robot_description)/xacro/rvl_ur5e.xacro'
+      joint_limit_params:=$(arg joint_limit_params)
+      kinematics_params:=$(arg kinematics_params)
+      physical_params:=$(arg physical_params)
+      visual_params:=$(arg visual_params)
+      transmission_hw_interface:=$(arg transmission_hw_interface)
+      safety_limits:=$(arg safety_limits)
+      safety_pos_margin:=$(arg safety_pos_margin)
+      safety_k_position:=$(arg safety_k_position)"
+      />
+</launch>

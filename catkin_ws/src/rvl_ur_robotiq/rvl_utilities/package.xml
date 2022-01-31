@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rvl_utilities</name>
+  <version>0.0.1</version>
+  <description>Extended set of tools for various purposes</description>
+
+  <maintainer email="minh.tram@mavs.uta.edu">Minh "Jerry" Tram</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+    <rosdoc config="rosdoc.yaml"/>    
+  </export>
+</package>
