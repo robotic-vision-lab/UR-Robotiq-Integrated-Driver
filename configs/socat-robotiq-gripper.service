@@ -1,0 +1,14 @@
+[Unit]
+Description=socat service for porting RS485 Robotiq Gripper
+
+[Service]
+Type=simple
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=socat-robotiq
+
+ExecStart=/root/soft/socat/bin/socat tcp-l:54321,reuseaddr,fork file:/dev/ttyTool,nonblock,raw,waitlock=/var/run/tty
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

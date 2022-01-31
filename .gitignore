@@ -517,3 +517,6 @@ python.ist
 *.sty
 *.cls
 *.tex
+
+# VS Code settings
+.vscode

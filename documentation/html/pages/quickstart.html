@@ -53,13 +53,18 @@
 <li class="toctree-l3"><a class="reference internal" href="#creating-the-ros-container">Creating the ROS Container</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#inside-the-container">Inside the container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inside-the-container">Inside the container</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#robot-xacro-and-urdf">Robot Xacro and URDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#universal-robots-driver-bringup">Universal Robots Driver Bringup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-and-running-ros">Building and Running ROS</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">RVL UR-Robotiq API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ide.html">Development Environment (DE) Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
         </div>
@@ -127,7 +132,7 @@ power on.</p>
 </div>
 <div class="section" id="clone-the-repository">
 <h3>Clone the Repository<a class="headerlink" href="#clone-the-repository" title="Permalink to this headline"></a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone <span class="o">[</span>repo_url<span class="o">]</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver
 </pre></div>
 </div>
 </div>
@@ -138,10 +143,19 @@ power on.</p>
 <span class="gp">$ </span>docker build -t rvl_driver -f name.dockerfile .
 </pre></div>
 </div>
-<p>or you can pull it directly from Docker Hub with <code class="docutils literal notranslate"><span class="pre">TBA</span></code>.</p>
+<p>or you can pull it directly from Docker Hub with <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">pull</span> <span class="pre">mqt0029/rvl-ur-robotiq-driver:latest</span></code>. If you pulled from Docker Hub,
+be sure to retag your image to <code class="docutils literal notranslate"><span class="pre">rvl-ur-robotiq-driver:latest</span></code></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>docker tag mqt0029/rvl-ur-robotiq-driver:latest rvl-ur-robotiq-driver:latest
+</pre></div>
+</div>
+<p>or update the image name in the launch script accordingly.</p>
 </div>
 <div class="section" id="creating-the-ros-container">
 <h3>Creating the ROS Container<a class="headerlink" href="#creating-the-ros-container" title="Permalink to this headline"></a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Be sure to check your image name before running the script.</p>
+</div>
 <p>The included <code class="docutils literal notranslate"><span class="pre">[windows_]launch_docker_container.sh</span></code> is a useful script in creating and accessing
 docker containers created from the built/pulled image. Simply run</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sh launch_docker_container.sh
@@ -160,7 +174,47 @@ to the docker container via <code class="docutils literal notranslate"><span cla
 <h2>Inside the container<a class="headerlink" href="#inside-the-container" title="Permalink to this headline"></a></h2>
 <p>With our specific setup of running UR5e and Robotiq 2F-85 gripper, we have customized the accompanying <code class="docutils literal notranslate"><span class="pre">xacro</span></code> (hence, also includes generated
 <code class="docutils literal notranslate"><span class="pre">urdf</span></code>) to match our specific machine description. You may want to modify the launch file to use the correct files for your setup.</p>
-<p>[insert what can be changed to accommodate different configurations]</p>
+<p>While the base path is commonly <code class="docutils literal notranslate"><span class="pre">[...]/catkin_ws/src</span></code>, this is not always the case. Paths will be relative to where you place your ROS packages.</p>
+<div class="section" id="robot-xacro-and-urdf">
+<h3>Robot Xacro and URDF<a class="headerlink" href="#robot-xacro-and-urdf" title="Permalink to this headline"></a></h3>
+<p>The included ROS package <code class="docutils literal notranslate"><span class="pre">rvl_robot_description</span></code> contains an example of our robot setup. The file <code class="docutils literal notranslate"><span class="pre">[...]/rvl_robot_description/xacro/rvl_ur5e.xacro</span></code>
+can be a good place to start and components should be fairly straightforward to swap in and move around.</p>
+</div>
+<div class="section" id="universal-robots-driver-bringup">
+<h3>Universal Robots Driver Bringup<a class="headerlink" href="#universal-robots-driver-bringup" title="Permalink to this headline"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ur_robot_driver</span></code> package launch file has been modified to work with the tool port gripper and our specific setup. You can use the launch file
+<code class="docutils literal notranslate"><span class="pre">[...]/rvl_ur_remote_dashboard/launch/rvl_ur5e_bringup.launch</span></code> as a reference, and modify it to fit your setup. The important section is highlighted
+below.</p>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;robot_ip&quot;</span> <span class="na">default=</span><span class="s">&quot;192.168.1.147&quot;</span> <span class="na">doc=</span><span class="s">&quot;IP address by which ...&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;robot_description_file&quot;</span> <span class="na">default=</span><span class="s">&quot;$(find rvl_ur_remote_dashboard)/launch/load_rvl_ur5e.launch&quot;</span> <span class="na">doc=</span><span class="s">&quot;Robot description launch file.&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;kinematics_config&quot;</span> <span class="na">default=</span><span class="s">&quot;$(find rvl_ur_remote_dashboard)/configs/ur5e_calibration.yaml&quot;</span> <span class="na">doc=</span><span class="s">&quot;Kinematics config file used ...&quot;</span><span class="nt">/&gt;</span>
+
+<span class="cm">&lt;!-- always start the UR side socat --&gt;</span>
+<span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;use_tool_communication&quot;</span> <span class="na">default=</span><span class="s">&quot;true&quot;</span> <span class="na">doc=</span><span class="s">&quot;On e-Series robots tool communication can be enabled with this argument&quot;</span><span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Double check your calibration file is correct or <a class="reference external" href="https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_calibration/README.md">retrieve it accordingly</a>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Make sure your robot description is correct! This is crucial to generating your own URDF and SRDF that MoveIt! uses to plan all subsequent motion!</p>
+</div>
+</div>
+<div class="section" id="building-and-running-ros">
+<h3>Building and Running ROS<a class="headerlink" href="#building-and-running-ros" title="Permalink to this headline"></a></h3>
+<p>A few aliases has been provided to quickly setup ROS dependencies and paths. <code class="docutils literal notranslate"><span class="pre">bash</span></code> will also automatically source <code class="docutils literal notranslate"><span class="pre">devel/setup.bash</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>run_rosdep
+<span class="go">[...] installing dependencies</span>
+
+<span class="gp">$ </span>rebuild_catkin
+<span class="go">[...] building catkin workspace</span>
+
+<span class="gp">$ </span>roslaunch &lt;your_stuff&gt;
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 

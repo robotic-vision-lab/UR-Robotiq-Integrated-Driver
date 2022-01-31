@@ -6,14 +6,21 @@
 RVL UR-Robotiq Integrated Driver
 ================================
 
+RVL UR-Robotiq Integrated Driver is a wrapper for the existing ROS services and topics provided by 
+Universal Robots (UR) ROS Driver with additional support for Robotiq gripper (currently support 2F) directly
+attached to the UR tool port.
+
+This driver also provides additional function for actuating the gripper in various modes (grasp on open/close, specific
+jaw gap, etc.) as well as integrating MoveIt! motion planning that tracks the entire setup, UR and Robotiq gripper. 
+
 .. toctree::
    :maxdepth: 2
 
    pages/quickstart.md
    pages/api.md
-   pages/ide.md
    pages/references.md
    pages/license.md
+   pages/changelog.md
    
 .. Indices and tables
 .. ==================
