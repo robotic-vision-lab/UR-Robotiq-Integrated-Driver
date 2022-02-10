@@ -46,7 +46,7 @@ If you are on Linux, be sure to follow [Docker Post-Installation Steps](https://
 ### Clone the Repository
 
 ```console
-$ git clone https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver
+$ git clone --recurse-submodules https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver
 ```
 
 ### Build or Pull the Docker Image
