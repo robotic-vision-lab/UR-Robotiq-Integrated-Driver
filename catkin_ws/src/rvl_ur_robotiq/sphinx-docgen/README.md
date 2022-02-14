@@ -26,7 +26,7 @@ There is also a script to copy the documentation files and folders directly onto
 also clone the public release repo, but submodules init are not necessary.
 
 ```console
-$ git clone git@github.com:robotic-vision-lab/UR-Robotiq-Integrated-Driver.git
+$ git clone --recurse-submodules git@github.com:robotic-vision-lab/UR-Robotiq-Integrated-Driver.git
 ```
 
 ## Making Changes
