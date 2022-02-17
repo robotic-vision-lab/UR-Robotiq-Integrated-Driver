@@ -10,12 +10,12 @@ BibTex references. ***CURRENTLY DISABLED!***
 Otherwise, the static BibTex below can also be used.
 
 ```TeX
-@software{Tram_RVL_UR-Robotiq_Integrated_2022,
-author = {Tram, Minh},
-title = {{RVL UR-Robotiq Integrated Driver}},
-url = {https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver}
-version = {0.0.1-alpha},
-year = {2022}
+@software{tram2022rvl,
+  author={Tram, Minh},
+  title={{RVL UR-Robotiq Integrated Driver}},
+  url={https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver}
+  version={0.0.1-alpha},
+  year={2022}
 }
 ```
 
