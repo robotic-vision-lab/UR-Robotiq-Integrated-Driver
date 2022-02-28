@@ -8,7 +8,7 @@ are built and sourced properly.
 Initial setup includes install [Sphinx](https://www.sphinx-doc.org/en/master/) and some of it's plugins for Markdown support.
 
 ```console
-$ pip install -r requirements.txt
+$ pip install sphinx myst-parser sphinx-rtd-theme
 ```
 
 This will allow HTML generation. LaTeX requires additional tools to be installed. `sudo` is omitted since containers
