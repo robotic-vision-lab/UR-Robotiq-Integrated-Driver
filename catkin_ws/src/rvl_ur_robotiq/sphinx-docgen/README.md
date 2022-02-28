@@ -5,6 +5,8 @@
 Since the documentation is ROS dependant, it must be build within the container after all ROS modules
 are built and sourced properly.
 
+> :warning: Be sure to follow [Quickstart instructions](../../../../documentation/rvl_driver_documentation.pdf) to ensure you have the Docker container! You may skip section 1.3.1 and 1.3.2
+
 Initial setup includes install [Sphinx](https://www.sphinx-doc.org/en/master/) and some of it's plugins for Markdown support.
 
 ```console
