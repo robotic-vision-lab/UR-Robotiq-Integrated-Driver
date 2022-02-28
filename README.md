@@ -1,18 +1,28 @@
 # UR-Robotiq Integrated Driver
 
+## Overview
+
+This software provides a wrapper for existing ROS services and topics provided
+by the Universal Robots (UR) ROS driver [1]. It has support for a Robotiq 2F
+gripper directly attached to the UR tool port [2]. This driver also provides
+additional functionality for actuating the gripper in various modes (e.g.,
+grasp on open/close, specific jaw gap, etc.) as well as integrating the MoveIt!
+motion planning framework which tracks the entire setup, UR robot, and Robotiq
+gripper.
+
 ## Citation
 
 If you find this code useful, then please consider citing our work.
 
-You can use the "Cite this repository" feature under About for automatic generation of APA and
-BibTex references. ***CURRENTLY DISABLED!***
+You can use the "Cite this repository" feature under About for automatic
+generation of APA and BibTex references. ***CURRENTLY DISABLED!***
 
-Otherwise, the static BibTex below can also be used.
+Otherwise, the static BibTex entry below can be used.
 
 ```TeX
-@software{tram2022rvl,
+@software{tram2022ur,
   author={Tram, Minh},
-  title={{RVL UR-Robotiq Integrated Driver}},
+  title={{UR-Robotiq Integrated Driver}},
   url={https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver}
   version={0.0.1-alpha},
   year={2022}
@@ -21,9 +31,12 @@ Otherwise, the static BibTex below can also be used.
 
 ## Documentation
 
-Documentation is generated using Sphinx and is available in [HTML](documentation/html/_modules/index.html) and [PDF](documentation/rvl_driver_documentation.pdf).
+Documentation is generated using Sphinx and is available in
+[HTML](documentation/html/_modules/index.html) and
+[PDF](documentation/rvl_driver_documentation.pdf).
 
-For instructions on how to regenerate updated versions, please refer to [Sphinx Docgen Instructions](catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/README.md).
+For instructions on how to regenerate updated versions, please refer to [Sphinx
+Docgen Instructions](catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/README.md).
 
 ## References
 
