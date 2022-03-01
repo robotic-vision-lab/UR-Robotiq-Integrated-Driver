@@ -5,14 +5,37 @@
 ```console
 $ sudo apt-get install docker.io    # also see https://docs.docker.com/engine/install/linux-postinstall/
 $ docker pull mqt0029/rvl-ur-robotiq-driver
-[...]
+    [...]
 $ docker tag mqt0029/rvl-ur-robotiq-driver:latest rvl-ur-robotiq-driver:latest
 $ git clone --recurse-submodule https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver.git
-[...]
+    [...]
 $ cd UR-Robotiq-Integrated-Driver/docker
 $ sh launch_docker_container.sh     # or windows_launch_docker_container.sh
-$ 
 ```
+
+You are now in the Docker container.
+
+```console
+> run_rosdep
+    [...]
+> rebuild_catkin
+    [...]
+> cd src/rvl_ur_robotiq/sphinx-docgen/
+    [make changes to documentation in source/pages/[file].md]
+> make html     # or latexpdf
+```
+
+Back on the host machine, when the documentation has been built. Simply run `sh update_documentation.sh` to update documentation in main directory.
+
+```console
+$ sh [...]/UR-Robotiq-Integrated-Driver/catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/update_documentation.sh
+
+or
+
+$ sh catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/update_documentation.sh
+```
+
+The script is written so that where it is called from should not matter.
 
 ## Requirements
 
