@@ -54,8 +54,8 @@ $ git clone --recurse-submodules https://github.com/robotic-vision-lab/UR-Roboti
 You can build the image using the Dockerfile already included in the repository
 
 ```console
-$ cd UR-Robotiq-Integrated-Driver/scripts
-$ docker build -t rvl_driver -f name.dockerfile .
+$ cd UR-Robotiq-Integrated-Driver/docker
+$ docker build -t rvl-ur-robotiq-driver -f Dockerfile.noetic .
 ```
 
 or you can pull it directly from Docker Hub with `docker pull mqt0029/rvl-ur-robotiq-driver:latest`. If you pulled from Docker Hub,

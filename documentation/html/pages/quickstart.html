@@ -92,7 +92,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="tex2jax_ignore mathjax_ignore section" id="quickstart">
+  <div class="section" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline"></a></h1>
 <div class="section" id="universal-robot-setup">
 <h2>Universal Robot Setup<a class="headerlink" href="#universal-robot-setup" title="Permalink to this headline"></a></h2>
@@ -140,8 +140,8 @@ power on.</p>
 <div class="section" id="build-or-pull-the-docker-image">
 <h3>Build or Pull the Docker Image<a class="headerlink" href="#build-or-pull-the-docker-image" title="Permalink to this headline"></a></h3>
 <p>You can build the image using the Dockerfile already included in the repository</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> UR-Robotiq-Integrated-Driver/scripts
-<span class="gp">$ </span>docker build -t rvl_driver -f name.dockerfile .
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> UR-Robotiq-Integrated-Driver/docker
+<span class="gp">$ </span>docker build -t rvl-ur-robotiq-driver -f Dockerfile.noetic .
 </pre></div>
 </div>
 <p>or you can pull it directly from Docker Hub with <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">pull</span> <span class="pre">mqt0029/rvl-ur-robotiq-driver:latest</span></code>. If you pulled from Docker Hub,
