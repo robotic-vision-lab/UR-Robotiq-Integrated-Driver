@@ -1,5 +1,19 @@
 # Sphinx Documentation Generator
 
+## Instruction Summary
+
+```console
+$ sudo apt-get install docker.io    # also see https://docs.docker.com/engine/install/linux-postinstall/
+$ docker pull mqt0029/rvl-ur-robotiq-driver
+[...]
+$ docker tag mqt0029/rvl-ur-robotiq-driver:latest rvl-ur-robotiq-driver:latest
+$ git clone --recurse-submodule https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver.git
+[...]
+$ cd UR-Robotiq-Integrated-Driver/docker
+$ sh launch_docker_container.sh     # or windows_launch_docker_container.sh
+$ 
+```
+
 ## Requirements
 
 Since the documentation is ROS dependant, it must be build within the container after all ROS modules

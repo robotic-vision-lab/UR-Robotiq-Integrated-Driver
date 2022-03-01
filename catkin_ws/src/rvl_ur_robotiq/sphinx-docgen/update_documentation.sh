@@ -8,7 +8,7 @@ SRC_HTML="$SCRIPT_DIR/build/html"
 SRC_PDF="$SCRIPT_DIR/build/latex/rvl_driver_documentation.pdf"
 
 # destinations
-DRVER_DOC="$( cd -- "$LOCAL_DOC/../../UR-Robotiq-Integrated-Driver/documentation" >/dev/null 2>&1 ; pwd -P )"
+DRVER_DOC="$( cd -- "$SCRIPT_DIR/../../../../documentation" >/dev/null 2>&1 ; pwd -P )"
 
 # confirming paths
 echo $SRC_HTML
