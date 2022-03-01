@@ -41,8 +41,6 @@ while true; do
     esac
 done
 
-exit
-
 cp -r $SRC_HTML $DRVER_DOC
 cp -r $SRC_PDF $DRVER_DOC
 

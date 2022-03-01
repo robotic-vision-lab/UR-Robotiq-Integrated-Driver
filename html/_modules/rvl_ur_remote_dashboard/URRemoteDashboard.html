@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rvl_ur_remote_dashboard.URRemoteDashboard &mdash; RVL UR-Robotiq Integrated Driver Documentation 0.0.1-alpha documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> RVL UR-Robotiq Integrated Driver Documentation
+          </a>
+              <div class="version">
+                0.0.1-alpha
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/api.html">RVL UR-Robotiq API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">RVL UR-Robotiq Integrated Driver Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>rvl_ur_remote_dashboard.URRemoteDashboard</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rvl_ur_remote_dashboard.URRemoteDashboard</h1><div class="highlight"><pre>
+<span></span><span class="c1"># rospy</span>
+<span class="kn">import</span> <span class="nn">rospy</span>
+<span class="kn">import</span> <span class="nn">rosservice</span>
+<span class="kn">from</span> <span class="nn">rospy</span> <span class="kn">import</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="n">ROSException</span>
+<span class="kn">from</span> <span class="nn">rospy.exceptions</span> <span class="kn">import</span> <span class="n">ROSInterruptException</span>
+
+<span class="c1"># typing and type hinting</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="c1"># pretty logging</span>
+<span class="kn">from</span> <span class="nn">rvl_utilities.CustomLogger</span> <span class="kn">import</span> <span class="n">ColorLogger</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="c1"># Additional UR mappings</span>
+<span class="c1"># from ur_dashboard_msgs.msg import ProgramState</span>
+<span class="kn">from</span> <span class="nn">rvl_ur_remote_dashboard.URInterfaceMapping</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Robotiq driver</span>
+<span class="kn">from</span> <span class="nn">rvl_robotiq_controller.RobotiqController</span> <span class="kn">import</span> <span class="n">Robotiq2FController</span>
+
+<div class="viewcode-block" id="URRemoteDashboard"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard">[docs]</a><span class="k">class</span> <span class="nc">URRemoteDashboard</span><span class="p">:</span>
+<div class="viewcode-block" id="URRemoteDashboard.__init__"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;UR5e&#39;</span><span class="p">,</span> <span class="n">using_gripper</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">using_urscript</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">service_timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The UR Remote Dashboard class. This is the primary extension overlaying the existing</span>
+<span class="sd">        Universal Robot Driver code base to access mapped services.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str, optional): Readable name to identify controller. Defaults to &#39;UR5e&#39;.</span>
+<span class="sd">            using_gripper (bool, optional): Initialized the attached Robotiq gripper. Defaults to False.</span>
+<span class="sd">            using_urscript (bool, optional): Register appropriate publisher to send UR Script. Defaults to False.</span>
+<span class="sd">            service_timeout (int, optional): Wait time for services to come on. Defaults to 5.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># custom logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">ColorLogger</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; Remote Dashboard&#39;</span><span class="p">)</span>
+
+        <span class="c1"># default service timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span> <span class="o">=</span> <span class="n">service_timeout</span>
+
+        <span class="c1"># robot status tracking</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot_mode</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">safety_mode</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_known_io_states</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_program</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">using_urscript</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># services</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">define_services</span><span class="p">()</span>
+
+        <span class="c1"># publisher/subscriber</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_robot_status</span><span class="p">()</span>
+        
+        <span class="c1"># extended features</span>
+        <span class="k">if</span> <span class="n">using_gripper</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        
+        <span class="k">if</span> <span class="n">using_urscript</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                                 POWER CONTROL                                #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="URRemoteDashboard.power_on_arm"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.power_on_arm">[docs]</a>    <span class="k">def</span> <span class="nf">power_on_arm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Power on the arm to idle state (brakes engaged).&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;power_on&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Waiting for arm to power on&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">elapsed</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_mode</span> <span class="o">&lt;</span> <span class="mi">5</span> <span class="ow">and</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="n">timeout</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rospy</span><span class="o">.</span><span class="n">is_shutdown</span><span class="p">():</span>
+                    <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">elapsed</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ROSException</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Arm powered on (brakes engaged)&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="n">ROSException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Wait time exceeded </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s1"> seconds power on time. Aborted.&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to power on robot arm&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.power_off_arm"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.power_off_arm">[docs]</a>    <span class="k">def</span> <span class="nf">power_off_arm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Power off the arm.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;power_off&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Waiting for arm to power off&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">elapsed</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_mode</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="n">timeout</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rospy</span><span class="o">.</span><span class="n">is_shutdown</span><span class="p">():</span>
+                    <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">elapsed</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ROSException</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Arm powered off&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="n">ROSException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Wait time exceeded </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s1"> seconds power off time. Aborted.&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to power off robot arm&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.system_shutdown"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.system_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">system_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Fully power down the robot (including control box).&quot;&quot;&quot;</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;shutdown&#39;</span><span class="p">)</span>
+        <span class="c1"># rospy.signal_shutdown(&#39;UR System shutdown requested. Shutting everything down.&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Goodbye!&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.cold_boot"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.cold_boot">[docs]</a>    <span class="k">def</span> <span class="nf">cold_boot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Go directly to operational state (power on, brakes released). See release_brakes().&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_brakes</span><span class="p">()</span></div>
+
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                                SAFETY CONTROL                                #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="URRemoteDashboard.release_brakes"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.release_brakes">[docs]</a>    <span class="k">def</span> <span class="nf">release_brakes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Fully power on the robot with brakes released.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;brake_release&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Waiting for arm to power on and release brakes&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">elapsed</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_mode</span> <span class="o">&lt;</span> <span class="mi">7</span> <span class="ow">and</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="n">timeout</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rospy</span><span class="o">.</span><span class="n">is_shutdown</span><span class="p">():</span>
+                    <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">elapsed</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ROSException</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Arm powered and ready for planning!&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="n">ROSException</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Wait time exceeded </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s1"> seconds full powered on time. Aborted.&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to fully initialized robot&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.restart_safety"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.restart_safety">[docs]</a>    <span class="k">def</span> <span class="nf">restart_safety</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Clear a safety fault or violation. Arm will be powered off.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;restart_safety&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Safety fault/violation cleared&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Robot is now powered off&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Check log for additional information before restarting!&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to clear safety violation&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.clear_protective_stop"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.clear_protective_stop">[docs]</a>    <span class="k">def</span> <span class="nf">clear_protective_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Clear a protective stop.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;unlock_protective_stop&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Waiting for protective stop to clear&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">elapsed</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">safety_mode</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="n">timeout</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rospy</span><span class="o">.</span><span class="n">is_shutdown</span><span class="p">():</span>
+                    <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">elapsed</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ROSException</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Protective stop cleared&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="n">ROSException</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Wait time exceeded </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s1"> seconds clearing time. Aborted.&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to clear protective stop&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.clear_operational_mode"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.clear_operational_mode">[docs]</a>    <span class="k">def</span> <span class="nf">clear_operational_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Allow PolyScope to change operational mode. User password will be enabled.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;clear_operational_mode&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Operational mode cleared&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to clear operational mode&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                                 POPUP CONTROL                                #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="URRemoteDashboard.close_popup"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.close_popup">[docs]</a>    <span class="k">def</span> <span class="nf">close_popup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">safety</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Close a popup on the Teach Pendant or PolyScope.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            safety (bool, optional): Set to True if popup is a safety popup. Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the targeted popup is closed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">safety</span><span class="p">:</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;close_safety_popup&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;close_popup&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot;Safety popup&quot;</span> <span class="k">if</span> <span class="n">safety</span> <span class="k">else</span> <span class="s2">&quot;Popup&quot;</span><span class="si">}</span><span class="s1"> closed&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to close popup&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.send_popup"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.send_popup">[docs]</a>    <span class="k">def</span> <span class="nf">send_popup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Send a message as a popup to Teach Pendant or PolyScope.&quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">PopupRequest</span><span class="p">()</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;popup&#39;</span><span class="p">]</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_message</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">Popup</span><span class="p">)(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Popup sent to Teach Pendant&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to send popup&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                           DASHBOARD SERVER CONTROL                           #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="URRemoteDashboard.connect_dashboard"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.connect_dashboard">[docs]</a>    <span class="k">def</span> <span class="nf">connect_dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Connect to the dashboard server. Need to be done before calling other services.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;connect&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Connection to dashboard established&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to disconnect from dashboard server&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.disconnect_dashboard"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.disconnect_dashboard">[docs]</a>    <span class="k">def</span> <span class="nf">disconnect_dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Disconnect from the dashboard server.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;quit&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Connection to dashboard terminated&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to disconnect from dashboard server&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.spam_connect"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.spam_connect">[docs]</a>    <span class="k">def</span> <span class="nf">spam_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Repeatedly calling connect() due to error prone and asynchronous status of the server.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            attempts (int, optional): Number of times connect() is called internally. Defaults to 10.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">attempts</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Reconnecting attempted (</span><span class="si">{</span><span class="n">attempts</span> <span class="o">-</span> <span class="n">i</span><span class="si">}</span><span class="s1"> remaining)&#39;</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_dashboard</span><span class="p">(</span><span class="n">quiet</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Reconnection attempts to dashboard server unsuccessful&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                    POLYSCOPE PROGRAMS/INSTALLATION CONTROL                   #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="URRemoteDashboard.start_loaded_program"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.start_loaded_program">[docs]</a>    <span class="k">def</span> <span class="nf">start_loaded_program</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start execution of default or loaded program.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;play&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Program </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_program</span><span class="si">}</span><span class="s1"> is running&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to start </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_program</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.pause_loaded_program"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.pause_loaded_program">[docs]</a>    <span class="k">def</span> <span class="nf">pause_loaded_program</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Pause PolyScope program execution.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;pause&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Program </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_program</span><span class="si">}</span><span class="s1"> is paused&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to pause </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_program</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.stop_loaded_program"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.stop_loaded_program">[docs]</a>    <span class="k">def</span> <span class="nf">stop_loaded_program</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Stop PolyScope program execution.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Program </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_program</span><span class="si">}</span><span class="s1"> is stopped&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to stop </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_program</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.is_program_running"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.is_program_running">[docs]</a>    <span class="k">def</span> <span class="nf">is_program_running</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns true if the default or loaded program is running.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;program_running&#39;</span><span class="p">],</span> <span class="n">IsProgramRunning</span><span class="p">)()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Program &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_program</span><span class="si">}</span><span class="s1">&quot; is </span><span class="si">{</span><span class="s2">&quot;running&quot;</span> <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">program_running</span> <span class="k">else</span> <span class="s2">&quot;not running&quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">program_running</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to query if program is running&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.is_program_saved"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.is_program_saved">[docs]</a>    <span class="k">def</span> <span class="nf">is_program_saved</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns true if the default or loaded program is saved.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;program_saved&#39;</span><span class="p">],</span> <span class="n">IsProgramSaved</span><span class="p">)()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Program &quot;</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">program_name</span><span class="si">}</span><span class="s1">&quot; is </span><span class="si">{</span><span class="s2">&quot;saved&quot;</span> <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">program_saved</span> <span class="k">else</span> <span class="s2">&quot;not saved&quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">program_saved</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to query if program is saved&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.query_program_state"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.query_program_state">[docs]</a>    <span class="k">def</span> <span class="nf">query_program_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Display the name and execution state of the current PolyScope program.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;program_state&#39;</span><span class="p">],</span> <span class="n">GetProgramState</span><span class="p">)()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Program &quot;</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">program_name</span><span class="si">}</span><span class="s1">&quot; state is </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">state</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to query if program is saved&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.terminate_external_control"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.terminate_external_control">[docs]</a>    <span class="k">def</span> <span class="nf">terminate_external_control</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Make the external_control node on PolyScope returns.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;hand_back_control&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;&quot;External Control&quot; program node terminated&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to terminate external control node&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.get_loaded_program"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.get_loaded_program">[docs]</a>    <span class="k">def</span> <span class="nf">get_loaded_program</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the name of the loaded program.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;get_loaded_program&#39;</span><span class="p">]</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">GetLoadedProgram</span><span class="p">)()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loaded_program</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">program_name</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">program_name</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to request loaded program name&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.load_program"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.load_program">[docs]</a>    <span class="k">def</span> <span class="nf">load_program</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ptype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load a program or installation file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Name of file with extension e.g., program.urp</span>
+<span class="sd">            ptype (str): Type of program. Accepting [&#39;prog&#39;, &#39;p&#39;, &#39;program&#39;, &#39;urp&#39;] or [&#39;inst&#39;, &#39;i&#39;, &#39;installation&#39;].</span>
+<span class="sd">            wait (int, optional): Wait time to handle known disconnection issue. Defaults to 10.</span>
+<span class="sd">            attempts (int, optional): Number of reconnection attempts. Defaults to 10.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">LoadRequest</span><span class="p">()</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ptype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;prog&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;program&#39;</span><span class="p">,</span> <span class="s1">&#39;urp&#39;</span><span class="p">]:</span>
+                <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;load_program&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">ptype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;inst&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;installation&#39;</span><span class="p">]:</span>
+                <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;load_installation&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ptype</span><span class="si">}</span><span class="s1"> is invalid&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expecting program [p, prog, program, urp] or installation [inst, i, installation]&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">Load</span><span class="p">)(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ServiceException</span><span class="p">,</span> <span class="n">ROSException</span><span class="p">)</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="s1">&#39;Known dashboard server disconnection occured&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Waiting for </span><span class="si">{</span><span class="n">wait</span><span class="si">}</span><span class="s1"> seconds for program/installation to load correctly&#39;</span><span class="p">)</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Attempting to reconnect to dashboard server (</span><span class="si">{</span><span class="n">attempts</span><span class="si">}</span><span class="s1"> attempts)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spam_connect</span><span class="p">(</span><span class="n">attempts</span> <span class="o">=</span> <span class="n">attempts</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">close_popup</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cold_boot</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_known_installation</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                                 ROBOT STATUS                                 #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="URRemoteDashboard.robot_status_callback"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.robot_status_callback">[docs]</a>    <span class="k">def</span> <span class="nf">robot_status_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot_mode</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">mode</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.robot_safety_callback"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.robot_safety_callback">[docs]</a>    <span class="k">def</span> <span class="nf">robot_safety_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">safety_mode</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">mode</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.robot_iostate_callback"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.robot_iostate_callback">[docs]</a>    <span class="k">def</span> <span class="nf">robot_iostate_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_known_io_states</span> <span class="o">=</span> <span class="n">msg</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.get_robot_mode"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.get_robot_mode">[docs]</a>    <span class="k">def</span> <span class="nf">get_robot_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the current robot mode.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;get_robot_mode&#39;</span><span class="p">]</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">GetRobotMode</span><span class="p">)()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">robot_mode</span><span class="o">.</span><span class="n">mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Robot mode = </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">RobotModeMapping</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">mode</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to request robot mode&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="URRemoteDashboard.get_safety_mode"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.get_safety_mode">[docs]</a>    <span class="k">def</span> <span class="nf">get_safety_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the current safety mode.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;get_safety_mode&#39;</span><span class="p">]</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">GetSafetyMode</span><span class="p">)()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">safety_mode</span><span class="o">.</span><span class="n">mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Robot safety mode = </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">SafetyModeMapping</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">mode</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to request robot safety mode&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                               ADVANCED FEATURES                              #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="URRemoteDashboard.zero_force_torque_sensor"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.zero_force_torque_sensor">[docs]</a>    <span class="k">def</span> <span class="nf">zero_force_torque_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Zero the ft-sensor. Only work on e-Series in remote-control mode.&quot;&quot;&quot;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s1">&#39;zero_ftsensor&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Force/Torque sensor zero-ed&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to zero force/torque sensor&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.log_to_pendant"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.log_to_pendant">[docs]</a>    <span class="k">def</span> <span class="nf">log_to_pendant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Log a message to PolyScope logs.&quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">AddToLogRequest</span><span class="p">()</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;add_to_log&#39;</span><span class="p">]</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">AddToLog</span><span class="p">)(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to log message to Teach Pendant&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.raw_request"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.raw_request">[docs]</a>    <span class="k">def</span> <span class="nf">raw_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send any arbitrary message or request to the dashboard server.&quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">RawRequestRequest</span><span class="p">()</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">query</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;raw_request&#39;</span><span class="p">]</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">RawRequest</span><span class="p">)(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to log message to Teach Pendant&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.set_io"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.set_io">[docs]</a>    <span class="k">def</span> <span class="nf">set_io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set specific IO port on the robot. Currently not supporting specific domains (current/voltage).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            function (int): See SetIOFunctionMapping.</span>
+<span class="sd">            pin (int): Which pin to execute the function on.</span>
+<span class="sd">            state (float): 0/1 for digital IOs and value for analog IO.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">SetIORequest</span><span class="p">()</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">fun</span> <span class="o">=</span> <span class="n">function</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">pin</span> <span class="o">=</span> <span class="n">pin</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;set_io&#39;</span><span class="p">]</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">SetIO</span><span class="p">)(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to set pin </span><span class="si">{</span><span class="n">pin</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s1"> using </span><span class="si">{</span><span class="n">SetIOFunctionMapping</span><span class="p">(</span><span class="n">function</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.set_payload"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.set_payload">[docs]</a>    <span class="k">def</span> <span class="nf">set_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mass</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cx</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cy</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cz</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the payload mass and center of gravity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mass (float): Mass of the payload in kg.</span>
+<span class="sd">            cx, cy, cz (float): Center of gravity of the payload.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">SetPayloadRequest</span><span class="p">()</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">center_of_gravity</span> <span class="o">=</span> <span class="n">Vector3</span><span class="p">()</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">center_of_gravity</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">cx</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">center_of_gravity</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">cy</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">center_of_gravity</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">cz</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">mass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;set_payload&#39;</span><span class="p">]</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">SetPayload</span><span class="p">)(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Setting payload successfully&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to set payload&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.set_speed_slider"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.set_speed_slider">[docs]</a>    <span class="k">def</span> <span class="nf">set_speed_slider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set robot execution speed as a fraction. Only set less than 1 on scaled controllers.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fraction (float): 0 to 1 if using scaled (default) controllers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">SetSpeedSliderFractionRequest</span><span class="p">()</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">speed_slider_fraction</span> <span class="o">=</span> <span class="n">clip</span><span class="p">(</span><span class="n">fraction</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;set_speed_slider&#39;</span><span class="p">]</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">SetSpeedSliderFraction</span><span class="p">)(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span> <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Setting speed slider successfully&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to set speed slider&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+    <span class="c1"># def set_robot_mode(self):</span>
+    <span class="c1">#     raise NotImplementedError</span>
+
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                             SUPPORTING FUNCTIONS                             #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="URRemoteDashboard.trigger_service"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.trigger_service">[docs]</a>    <span class="k">def</span> <span class="nf">trigger_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serv_alias</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Internal trigger service handling with exceptions&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">serv_alias</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">:</span>
+            <span class="n">serv_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="n">serv_alias</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv_name</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span><span class="n">serv_name</span><span class="p">,</span> <span class="n">Trigger</span><span class="p">)()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">ServiceException</span><span class="p">(</span><span class="s1">&#39;response.success returned False&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="n">ROSInterruptException</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to trigger </span><span class="si">{</span><span class="n">serv_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">serv_alias</span><span class="si">}</span><span class="s1"> is unknown/unsupported. Aborted.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.define_services"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.define_services">[docs]</a>    <span class="k">def</span> <span class="nf">define_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">available</span> <span class="o">=</span> <span class="n">rosservice</span><span class="o">.</span><span class="n">get_service_list</span><span class="p">()</span>
+        <span class="n">filterted</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">available</span> <span class="k">if</span> <span class="s1">&#39;ur_hardware_interface&#39;</span> <span class="ow">in</span> <span class="n">s</span> <span class="ow">and</span> <span class="s1">&#39;logger&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span> <span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">filterted</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">services</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.register_robot_status"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.register_robot_status">[docs]</a>    <span class="k">def</span> <span class="nf">register_robot_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Register necessary subscribers and callbacks to monitor robot operational status.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># wait for topics to show up</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">robot_mode</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_message</span><span class="p">(</span><span class="s1">&#39;/ur_hardware_interface/robot_mode&#39;</span><span class="p">,</span> <span class="n">RobotMode</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span><span class="o">.</span><span class="n">mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">safety_mode</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_message</span><span class="p">(</span><span class="s1">&#39;/ur_hardware_interface/safety_mode&#39;</span><span class="p">,</span> <span class="n">SafetyMode</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span><span class="o">.</span><span class="n">mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_known_io_states</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_message</span><span class="p">(</span><span class="s1">&#39;/ur_hardware_interface/io_states&#39;</span><span class="p">,</span> <span class="n">IOStates</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+
+            <span class="c1"># register robot status tracking with callbacks</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">robot_mode_sub</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/ur_hardware_interface/robot_mode&#39;</span><span class="p">,</span> <span class="n">RobotMode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_status_callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">robot_safety_sub</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/ur_hardware_interface/safety&#39;</span><span class="p">,</span> <span class="n">SafetyMode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_safety_callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">robot_io_sub</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/ur_hardware_interface/io_states&#39;</span><span class="p">,</span> <span class="n">IOStates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_iostate_callback</span><span class="p">)</span>
+
+            <span class="c1"># verify if services are available</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify_services</span><span class="p">()</span>
+
+            <span class="c1"># get program name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_loaded_program</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Registered robot status subscribers&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ROSException</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to register status subscriber&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Remote Dashboard terminated&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+            <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="URRemoteDashboard.verify_services"><a class="viewcode-back" href="../universal_robots/rvl_ur_remote_dashboard.html#rvl_ur_remote_dashboard.URRemoteDashboard.URRemoteDashboard.verify_services">[docs]</a>    <span class="k">def</span> <span class="nf">verify_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="s1">&#39;Validating if all services are available&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">serv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;All supported services are available&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Minh Tram.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

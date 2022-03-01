@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rvl_utilities.CustomLogger &mdash; RVL UR-Robotiq Integrated Driver Documentation 0.0.1-alpha documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> RVL UR-Robotiq Integrated Driver Documentation
+          </a>
+              <div class="version">
+                0.0.1-alpha
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/api.html">RVL UR-Robotiq API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">RVL UR-Robotiq Integrated Driver Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>rvl_utilities.CustomLogger</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rvl_utilities.CustomLogger</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<div class="viewcode-block" id="hex_to_rgb"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.hex_to_rgb">[docs]</a><span class="k">def</span> <span class="nf">hex_to_rgb</span><span class="p">(</span><span class="nb">hex</span><span class="p">,</span> <span class="n">ansi</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="n">stripped_hex</span> <span class="o">=</span> <span class="nb">hex</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stripped_hex</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stripped_hex</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stripped_hex</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ansi</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s1">;</span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="s1">;</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="rgb_to_hex"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.rgb_to_hex">[docs]</a><span class="k">def</span> <span class="nf">rgb_to_hex</span><span class="p">(</span><span class="n">rgb</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">rgb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">x</span><span class="si">}{</span><span class="n">rgb</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">x</span><span class="si">}{</span><span class="n">rgb</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s1">x</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="gen_esc"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.gen_esc">[docs]</a><span class="k">def</span> <span class="nf">gen_esc</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s1">m&#39;</span></div>
+
+<div class="viewcode-block" id="gen_ansi_rgb_esc"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.gen_ansi_rgb_esc">[docs]</a><span class="k">def</span> <span class="nf">gen_ansi_rgb_esc</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[38;2;</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s1">m&#39;</span></div>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">sequences = {</span>
+<span class="sd">    &#39;EFFECTS&#39; : {</span>
+<span class="sd">        &#39;RESET&#39;     : gen_esc(0),</span>
+<span class="sd">        &#39;BOLD&#39;      : gen_esc(1),</span>
+<span class="sd">        &#39;ITALIC&#39;    : gen_esc(3),</span>
+<span class="sd">        &#39;UNDERLINE&#39; : gen_esc(4)</span>
+<span class="sd">    },</span>
+
+<span class="sd">    &#39;FLAGS&#39; : {</span>
+<span class="sd">        &#39;ERROR&#39;     : gen_esc(91),</span>
+<span class="sd">        &#39;SUCCESS&#39;   : gen_esc(92),</span>
+<span class="sd">        &#39;WARNING&#39;   : gen_esc(93),</span>
+<span class="sd">        &#39;LOG&#39;       : gen_esc(0)    # basically reset?</span>
+<span class="sd">    },</span>
+
+<span class="sd">    # example of adding custom color scheme if your terminal isn&#39;t under a scheme already</span>
+<span class="sd">    &#39;DEFAULT&#39; : {</span>
+<span class="sd">        &#39;RED&#39;       : gen_ansi_rgb_esc(hex_to_rgb(&#39;#ff0000&#39;)),</span>
+<span class="sd">        &#39;GREEN&#39;     : gen_ansi_rgb_esc(hex_to_rgb(&#39;#00ff00&#39;)),</span>
+<span class="sd">        &#39;BLUE&#39;      : gen_ansi_rgb_esc(hex_to_rgb(&#39;#0000ff&#39;)),</span>
+<span class="sd">        &#39;CYAN&#39;      : gen_ansi_rgb_esc(hex_to_rgb(&#39;#00ffff&#39;)),</span>
+<span class="sd">        &#39;MAGENTA&#39;   : gen_ansi_rgb_esc(hex_to_rgb(&#39;#ff00ff&#39;)),</span>
+<span class="sd">        &#39;YELLOW&#39;    : gen_ansi_rgb_esc(hex_to_rgb(&#39;#ffff00&#39;)),</span>
+<span class="sd">        &#39;WHITE&#39;     : gen_ansi_rgb_esc(hex_to_rgb(&#39;#ffffff&#39;)),</span>
+<span class="sd">        &#39;BLACK&#39;     : gen_ansi_rgb_esc(hex_to_rgb(&#39;#000000&#39;)),</span>
+<span class="sd">    },</span>
+
+<span class="sd">    # dracula: https://draculatheme.com/contribute#color-palette</span>
+<span class="sd">    &#39;DRACULA&#39; : {</span>
+<span class="sd">        &#39;CYAN&#39;      : gen_ansi_rgb_esc(hex_to_rgb(&#39;#8be9fd&#39;)),</span>
+<span class="sd">        &#39;GREEN&#39;     : gen_ansi_rgb_esc(hex_to_rgb(&#39;#50fa7b&#39;)),</span>
+<span class="sd">        &#39;ORANGE&#39;    : gen_ansi_rgb_esc(hex_to_rgb(&#39;#ffb86c&#39;)),</span>
+<span class="sd">        &#39;PINK&#39;      : gen_ansi_rgb_esc(hex_to_rgb(&#39;#ff79c6&#39;)),</span>
+<span class="sd">        &#39;PURPLE&#39;    : gen_ansi_rgb_esc(hex_to_rgb(&#39;#bd93f9&#39;)),</span>
+<span class="sd">        &#39;RED&#39;       : gen_ansi_rgb_esc(hex_to_rgb(&#39;#ff5555&#39;)),</span>
+<span class="sd">        &#39;YELLOW&#39;    : gen_ansi_rgb_esc(hex_to_rgb(&#39;#f1fa8c&#39;))</span>
+<span class="sd">    }</span>
+<span class="sd">}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ColorLogger"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.ColorLogger">[docs]</a><span class="k">class</span> <span class="nc">ColorLogger</span><span class="p">:</span>
+<div class="viewcode-block" id="ColorLogger.__init__"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.ColorLogger.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">] &#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">define_sequences</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ColorLogger.gen_output_str"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.ColorLogger.gen_output_str">[docs]</a>    <span class="k">def</span> <span class="nf">gen_output_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">esc</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">esc</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepend</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">indent</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">reset</span></div>
+
+<div class="viewcode-block" id="ColorLogger.log_info"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.ColorLogger.log_info">[docs]</a>    <span class="k">def</span> <span class="nf">log_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_output_str</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ColorLogger.log_warn"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.ColorLogger.log_warn">[docs]</a>    <span class="k">def</span> <span class="nf">log_warn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_output_str</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn_esc</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ColorLogger.log_success"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.ColorLogger.log_success">[docs]</a>    <span class="k">def</span> <span class="nf">log_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_output_str</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">success_esc</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ColorLogger.log_error"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.ColorLogger.log_error">[docs]</a>    <span class="k">def</span> <span class="nf">log_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_output_str</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_esc</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ColorLogger.define_sequences"><a class="viewcode-back" href="../rvl_utils/rvl_utilities.html#rvl_utilities.CustomLogger.ColorLogger.define_sequences">[docs]</a>    <span class="k">def</span> <span class="nf">define_sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span> <span class="o">=</span> <span class="n">gen_esc</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_esc</span> <span class="o">=</span> <span class="n">gen_esc</span><span class="p">(</span><span class="mi">91</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">success_esc</span> <span class="o">=</span> <span class="n">gen_esc</span><span class="p">(</span><span class="mi">92</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warn_esc</span> <span class="o">=</span> <span class="n">gen_esc</span><span class="p">(</span><span class="mi">93</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Minh Tram.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

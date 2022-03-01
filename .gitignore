@@ -511,8 +511,8 @@ CATKIN_IGNORE
 # Sphinx generated files
 latexmkjarc
 latexmkrc
-make.bat
-Makefile
+# make.bat
+# Makefile
 python.ist
 *.sty
 *.cls

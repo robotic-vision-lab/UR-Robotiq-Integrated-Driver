@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rvl_ur_motion_planner package &mdash; RVL UR-Robotiq Integrated Driver Documentation 0.0.1-alpha documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="rvl_ur_remote_dashboard package" href="rvl_ur_remote_dashboard.html" />
+    <link rel="prev" title="rvl_ur_remote_dashboard ROS Package" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> RVL UR-Robotiq Integrated Driver Documentation
+          </a>
+              <div class="version">
+                0.0.1-alpha
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../pages/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../pages/api.html">RVL UR-Robotiq API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../pages/api.html#imports">Imports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pages/api.html#modules-quick-access">Modules Quick Access</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../pages/api.html#full-modules-documentation">Full Modules Documentation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../pages/api.html#gripper-control">Gripper Control</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../pages/api.html#ur-dashboard-control">UR Dashboard Control</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="modules.html">rvl_ur_remote_dashboard ROS Package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../pages/api.html#utilities">Utilities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">RVL UR-Robotiq Integrated Driver Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../pages/api.html">RVL UR-Robotiq API</a> &raquo;</li>
+          <li><a href="modules.html">rvl_ur_remote_dashboard ROS Package</a> &raquo;</li>
+      <li>rvl_ur_motion_planner package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/_modules/universal_robots/rvl_ur_motion_planner.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="rvl-ur-motion-planner-package">
+<h1>rvl_ur_motion_planner package<a class="headerlink" href="#rvl-ur-motion-planner-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="module-rvl_ur_motion_planner.URMoveitCommander">
+<span id="rvl-ur-motion-planner-urmoveitcommander-module"></span><h2>rvl_ur_motion_planner.URMoveitCommander module<a class="headerlink" href="#module-rvl_ur_motion_planner.URMoveitCommander" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="rvl_ur_motion_planner.URMoveitCommander.URCommander">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rvl_ur_motion_planner.URMoveitCommander.</span></span><span class="sig-name descname"><span class="pre">URCommander</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'arm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../rvl_ur_motion_planner/URMoveitCommander.html#URCommander"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rvl_ur_motion_planner.URMoveitCommander.URCommander" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="rvl_ur_motion_planner.URMoveitCommander.URCommander.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'arm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../rvl_ur_motion_planner/URMoveitCommander.html#URCommander.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rvl_ur_motion_planner.URMoveitCommander.URCommander.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rvl_ur_motion_planner.URMoveitCommander.URCommander.all_close">
+<span class="sig-name descname"><span class="pre">all_close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../rvl_ur_motion_planner/URMoveitCommander.html#URCommander.all_close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rvl_ur_motion_planner.URMoveitCommander.URCommander.all_close" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method for testing if the values in two lists are within a tolerance of each other.
+For Pose and PoseStamped inputs, the angle between the two quaternions is compared (the angle
+between the identical orientations q and -q is calculated correctly).
+&#64;param: goal       A list of floats, a Pose or a PoseStamped
+&#64;param: actual     A list of floats, a Pose or a PoseStamped
+&#64;param: tolerance  A float
+&#64;returns: bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rvl_ur_motion_planner.URMoveitCommander.URCommander.define_preset_locations">
+<span class="sig-name descname"><span class="pre">define_preset_locations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../rvl_ur_motion_planner/URMoveitCommander.html#URCommander.define_preset_locations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rvl_ur_motion_planner.URMoveitCommander.URCommander.define_preset_locations" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rvl_ur_motion_planner.URMoveitCommander.URCommander.go_to_preset_location">
+<span class="sig-name descname"><span class="pre">go_to_preset_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../rvl_ur_motion_planner/URMoveitCommander.html#URCommander.go_to_preset_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rvl_ur_motion_planner.URMoveitCommander.URCommander.go_to_preset_location" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rvl_ur_motion_planner.URMoveitCommander.URCommander.home">
+<span class="sig-name descname"><span class="pre">home</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../rvl_ur_motion_planner/URMoveitCommander.html#URCommander.home"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rvl_ur_motion_planner.URMoveitCommander.URCommander.home" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rvl_ur_motion_planner.URMoveitCommander.URCommander.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../rvl_ur_motion_planner/URMoveitCommander.html#URCommander.report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rvl_ur_motion_planner.URMoveitCommander.URCommander.report" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="rvl_ur_remote_dashboard ROS Package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rvl_ur_remote_dashboard.html" class="btn btn-neutral float-right" title="rvl_ur_remote_dashboard package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Minh Tram.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

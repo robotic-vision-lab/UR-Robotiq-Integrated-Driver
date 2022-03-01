@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rvl_robotiq_controller.RobotiqController &mdash; RVL UR-Robotiq Integrated Driver Documentation 0.0.1-alpha documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> RVL UR-Robotiq Integrated Driver Documentation
+          </a>
+              <div class="version">
+                0.0.1-alpha
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/api.html">RVL UR-Robotiq API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">RVL UR-Robotiq Integrated Driver Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>rvl_robotiq_controller.RobotiqController</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rvl_robotiq_controller.RobotiqController</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">rospy</span>
+<span class="kn">from</span> <span class="nn">rospy</span> <span class="kn">import</span> <span class="n">ROSException</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">clip</span><span class="p">,</span> <span class="n">polyfit</span><span class="p">,</span> <span class="n">poly1d</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">isclose</span>
+
+<span class="kn">from</span> <span class="nn">rvl_robotiq_controller.msg</span> <span class="kn">import</span> <span class="n">Robotiq2FCommand</span><span class="p">,</span> <span class="n">Robotiq2FStatus</span>
+<span class="kn">from</span> <span class="nn">Robotiq2FSupport</span> <span class="kn">import</span> <span class="n">fault_mapping</span>
+<span class="kn">from</span> <span class="nn">rvl_utilities.CustomLogger</span> <span class="kn">import</span> <span class="n">ColorLogger</span>
+
+<span class="kn">from</span> <span class="nn">ur_dashboard_msgs.msg</span> <span class="kn">import</span> <span class="n">RobotMode</span>
+
+<div class="viewcode-block" id="Robotiq2FController"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController">[docs]</a><span class="k">class</span> <span class="nc">Robotiq2FController</span><span class="p">:</span>
+<div class="viewcode-block" id="Robotiq2FController.__init__"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stroke</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default_force</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">default_speed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">initialize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">startup_reset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">calibrate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">bypass_power</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Controller for basic Robotiq 2F Gripper operation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stroke (int): Stroke of the gripper. 2F grippers must use either 85mm or 140mm.</span>
+<span class="sd">            default_force (int, optional): Default gripping force. Defaults to 100.</span>
+<span class="sd">            default_speed (int, optional): Default gripping speed. Defaults to 100.</span>
+<span class="sd">            initialize (bool, optional): Register ROS publisher and subscriber on object instantiation. Defaults to False.</span>
+<span class="sd">            startup_reset (bool, optional): Invoke internal reset on instantiation. Defaults to False.</span>
+<span class="sd">            calibrate (bool, optional): Adjust binary limits of gripper. Defaults to False.</span>
+<span class="sd">            bypass_power (bool, optional): Ignoring power state monitor. Useful when gripper not attached to UR tool port. Defaults to False.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Invalid stroke width, must be 85mm or 140mm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># check definition</span>
+        <span class="k">if</span> <span class="n">stroke</span> <span class="o">!=</span> <span class="mi">85</span> <span class="ow">and</span> <span class="n">stroke</span> <span class="o">!=</span> <span class="mi">140</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;2F Gripper stroke must be 85 or 140 mm&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stroke</span> <span class="o">=</span> <span class="n">stroke</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">ColorLogger</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;R2F&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stroke</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; Controller&#39;</span><span class="p">)</span>
+
+        <span class="c1"># factory preset (page 25 of user manual)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">default_force</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">default_speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+        <span class="c1"># NBR Finger (page 121 of user manual)</span>
+        <span class="c1"># self.finger_thickness = finger_thickness # mm</span>
+
+        <span class="c1"># mechanical specification (page 123 of user manual)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stroke</span> <span class="o">==</span> <span class="mi">85</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">force_range</span> <span class="o">=</span> <span class="p">(</span><span class="mf">20.0</span><span class="p">,</span> <span class="mf">235.0</span><span class="p">)</span> <span class="c1"># Newton</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">speed_range</span> <span class="o">=</span> <span class="p">(</span><span class="mf">20.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">)</span> <span class="c1"># mm/s</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">force_range</span> <span class="o">=</span> <span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">125.0</span><span class="p">)</span> <span class="c1"># Newton</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">speed_range</span> <span class="o">=</span> <span class="p">(</span><span class="mf">30.0</span><span class="p">,</span> <span class="mf">250.0</span><span class="p">)</span> <span class="c1"># mm/s</span>
+
+        <span class="c1"># recorded limit of gripper binary range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binary_range</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">rospy</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s1">&#39;/robotiq_2f_85_calibration/lower_binary&#39;</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span>   <span class="mi">0</span><span class="p">)),</span>
+                                   <span class="nb">int</span><span class="p">(</span><span class="n">rospy</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s1">&#39;/robotiq_2f_85_calibration/upper_binary&#39;</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">255</span><span class="p">))])</span>
+
+        <span class="c1"># status keeping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">power_status</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">power_bypass</span> <span class="o">=</span> <span class="n">bypass_power</span>
+
+        <span class="k">if</span> <span class="n">initialize</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">startup_reset</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">calibrate</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">binary_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
+
+        <span class="c1"># conversion ratio for force, speed, and distance (metrics to binary)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_ratio</span> <span class="o">=</span> <span class="n">poly1d</span><span class="p">(</span><span class="n">polyfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force_range</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s_ratio</span> <span class="o">=</span> <span class="n">poly1d</span><span class="p">(</span><span class="n">polyfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed_range</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_ratio</span> <span class="o">=</span> <span class="n">poly1d</span><span class="p">(</span><span class="n">polyfit</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">stroke</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">binary_range</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inv_f</span>   <span class="o">=</span> <span class="n">poly1d</span><span class="p">(</span><span class="n">polyfit</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_range</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inv_s</span>   <span class="o">=</span> <span class="n">poly1d</span><span class="p">(</span><span class="n">polyfit</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed_range</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inv_d</span>   <span class="o">=</span> <span class="n">poly1d</span><span class="p">(</span><span class="n">polyfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary_range</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stroke</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span></div>
+        
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                               GRIPPER ACTUATION                              #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="Robotiq2FController.auto_close"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.auto_close">[docs]</a>    <span class="k">def</span> <span class="nf">auto_close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alt_speed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alt_force</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Fully close the gripper or until obstructed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alt_speed (int, optional): Override internal speed settings. Defaults to None.</span>
+<span class="sd">            alt_force (int, optional): Override internal force settings. Defaults to None.</span>
+<span class="sd">            blocking (bool, optional): Wait until gripper motion is completed. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">goto</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="k">if</span> <span class="n">alt_speed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="k">if</span> <span class="n">alt_force</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_force</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blocking</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.auto_open"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.auto_open">[docs]</a>    <span class="k">def</span> <span class="nf">auto_open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alt_speed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alt_force</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Fully open the gripper or until obstructed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alt_speed (int, optional): Override internal speed settings. Defaults to None.</span>
+<span class="sd">            alt_force (int, optional): Override internal force settings. Defaults to None.</span>
+<span class="sd">            blocking (bool, optional): Wait until gripper motion is completed. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">goto</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="k">if</span> <span class="n">alt_speed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="k">if</span> <span class="n">alt_force</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_force</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blocking</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.grasp_soft"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.grasp_soft">[docs]</a>    <span class="k">def</span> <span class="nf">grasp_soft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opening</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">alt_speed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Soft grasp preset, grasping with force set to 1 (approximately 20 N).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            opening (bool, optional): Grasp in the opening direction i.e. internal grasp. Defaults to False.</span>
+<span class="sd">            alt_speed (int, optional): Override internal speed settings. Defaults to None.</span>
+<span class="sd">            blocking (bool, optional): Wait until gripper motion is completed. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">goto</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="k">if</span> <span class="n">alt_speed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blocking</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.grasp_soft_regrasp"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.grasp_soft_regrasp">[docs]</a>    <span class="k">def</span> <span class="nf">grasp_soft_regrasp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opening</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">alt_speed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Soft grasp preset, grasping with force set to 1 (approximately 20 N) with Re-Grasp enabled.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            opening (bool, optional): Grasp in the opening direction i.e. internal grasp. Defaults to False.</span>
+<span class="sd">            alt_speed (int, optional): Override internal speed settings. Defaults to None.</span>
+<span class="sd">            blocking (bool, optional): Wait until gripper motion is completed. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">goto</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">opening</span> <span class="k">else</span> <span class="mi">255</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="k">if</span> <span class="n">alt_speed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blocking</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.grasp_medium"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.grasp_medium">[docs]</a>    <span class="k">def</span> <span class="nf">grasp_medium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opening</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">alt_speed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Medium grasp preset, grasping with force set to 128 (approximately 128 N).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            opening (bool, optional): Grasp in the opening direction i.e. internal grasp. Defaults to False.</span>
+<span class="sd">            alt_speed (int, optional): Override internal speed settings. Defaults to None.</span>
+<span class="sd">            blocking (bool, optional): Wait until gripper motion is completed. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">goto</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">opening</span> <span class="k">else</span> <span class="mi">255</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="k">if</span> <span class="n">alt_speed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="mi">128</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blocking</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.grasp_hard"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.grasp_hard">[docs]</a>    <span class="k">def</span> <span class="nf">grasp_hard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opening</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">alt_speed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Hard grasp preset, grasping with force set to maximum or 255 (approximately 235 N).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            opening (bool, optional): Grasp in the opening direction i.e. internal grasp. Defaults to False.</span>
+<span class="sd">            alt_speed (int, optional): Override internal speed settings. Defaults to None.</span>
+<span class="sd">            blocking (bool, optional): Wait until gripper motion is completed. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">goto</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">opening</span> <span class="k">else</span> <span class="mi">255</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="k">if</span> <span class="n">alt_speed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blocking</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.open_gripper"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.open_gripper">[docs]</a>    <span class="k">def</span> <span class="nf">open_gripper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">alt_speed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alt_force</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Open/Close the gripper to specified gap between the gripper pads.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (Union[int, float]): Width of the jaw opening.</span>
+<span class="sd">            alt_speed (int, optional): Override internal speed settings. Defaults to None.</span>
+<span class="sd">            alt_force (int, optional): Override internal force settings. Defaults to None.</span>
+<span class="sd">            unit (str, optional): Unit of measurement. Defaults to &#39;mm&#39;.</span>
+<span class="sd">            blocking (bool, optional): Wait until gripper motion is completed. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">acceptable_units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">unit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">acceptable_units</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s1"> is invalid unit&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expecting </span><span class="si">{</span><span class="n">acceptable_units</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">goto</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="k">if</span> <span class="n">alt_speed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="k">if</span> <span class="n">alt_force</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">alt_force</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;raw&#39;</span><span class="p">:</span>
+                <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">binary_range</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;mm&#39;</span><span class="p">:</span>
+                <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_mm_to_raw</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_in_to_raw</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">blocking</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.set_gripper_speed"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.set_gripper_speed">[docs]</a>    <span class="k">def</span> <span class="nf">set_gripper_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mm/s&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the internal (default) speed setting of the gripper. </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (Union[int, float]): New speed value.</span>
+<span class="sd">            unit (str, optional): Unit of measurement. Defaults to &#39;mm/s&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">acceptable_units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="s1">&#39;mm/s&#39;</span><span class="p">,</span> <span class="s1">&#39;in/s&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">unit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">acceptable_units</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s1"> is invalid unit&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expecting </span><span class="si">{</span><span class="n">acceptable_units</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;raw&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;mm/s&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mmps_to_raw_speed</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inps_to_raw_speed</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.set_gripper_force"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.set_gripper_force">[docs]</a>    <span class="k">def</span> <span class="nf">set_gripper_force</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the internal (default) force setting of the gripper. </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (Union[int, float]): New force value.</span>
+<span class="sd">            unit (str, optional): Unit of measurement. Defaults to &#39;N&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">acceptable_units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="s1">&#39;newton&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;pound-force&#39;</span><span class="p">,</span> <span class="s1">&#39;lbf&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">unit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">acceptable_units</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s1"> is invalid unit&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expecting </span><span class="si">{</span><span class="n">acceptable_units</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;raw&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;newton&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">newton_to_raw_force</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lbf_to_raw_force</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.send_raw_position_command"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.send_raw_position_command">[docs]</a>    <span class="k">def</span> <span class="nf">send_raw_position_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Send a position request command to the gripper ignoring internal settings.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position (int): Raw position value [0-255].</span>
+<span class="sd">            speed (int): Raw speed value [0-255].</span>
+<span class="sd">            force (int): Raw force value [0-255].</span>
+<span class="sd">            blocking (bool, optional): Wait until gripper motion is completed. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">goto</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">force</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blocking</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">()</span></div>
+        
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                            GRIPPING/MOVING STATUS                            #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="Robotiq2FController.is_moving"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.is_moving">[docs]</a>    <span class="k">def</span> <span class="nf">is_moving</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns true when the gripper is in motion&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">object_status</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.is_holding"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.is_holding">[docs]</a>    <span class="k">def</span> <span class="nf">is_holding</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns true when the gripper is holding an object&quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">object_status</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="s1">&#39;Object detected/holding while opening&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="s1">&#39;Object detected/holding while closing&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="s1">&#39;No object detected&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">object_status</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">object_status</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span></div>
+    
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                              ACTIVATION CONTROL                              #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="Robotiq2FController.reset"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Reset the gripper to default state (may or may not be obstructed).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gripper reset&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deactivate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.deactivate"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.deactivate">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Deactivate the gripper. Can also be used to clear the reset bit.&quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.activate"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.activate">[docs]</a>    <span class="k">def</span> <span class="nf">activate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;[summary]&quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">Robotiq2FCommand</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compensated_publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+            
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                             SUPPORTING FUNCTIONS                             #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="Robotiq2FController.report_status"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.report_status">[docs]</a>    <span class="k">def</span> <span class="nf">report_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Output the current state of the gripper.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            verbose (bool, optional): Display additional raw status message. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">current_position</span>
+        <span class="n">pos_mm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_to_open_mm</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="n">pos_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_to_open_in</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="n">speed_mm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_speed_to_mmps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="p">)</span>
+        <span class="n">speed_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_speed_to_inps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="p">)</span>
+        <span class="n">force_N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_force_to_newton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        <span class="n">force_lbf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_force_to_lbf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        <span class="n">fault_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">fault_status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;==== Current status ====&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Opening  = </span><span class="si">{</span><span class="n">pos</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">pos_mm</span><span class="si">}</span><span class="s1"> mm ~ </span><span class="si">{</span><span class="n">pos_in</span><span class="si">}</span><span class="s1"> in]&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Speed    = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">speed_mm</span><span class="si">}</span><span class="s1"> mm/s ~ </span><span class="si">{</span><span class="n">speed_in</span><span class="si">}</span><span class="s1"> in/s]&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Force    = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">force_N</span><span class="si">}</span><span class="s1"> N ~ </span><span class="si">{</span><span class="n">force_lbf</span><span class="si">}</span><span class="s1"> lbf]&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fault    = </span><span class="si">{</span><span class="n">fault_mapping</span><span class="p">[</span><span class="n">fault_status</span><span class="p">]</span> <span class="k">if</span> <span class="n">fault_status</span> <span class="ow">in</span> <span class="n">fault_mapping</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="s1">&#39;Raw Robotiq2FStatus message:&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.register"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Register necessary ROS publishers and subscribers.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            timeout (int, optional): Wait time for topics to start publishing. Defaults to 10.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Registering publisher and subscriber&#39;</span><span class="p">)</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_message</span><span class="p">(</span><span class="s1">&#39;/Robotiq2F/gripper_status&#39;</span><span class="p">,</span> <span class="n">Robotiq2FStatus</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_monitor</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/Robotiq2F/gripper_status&#39;</span><span class="p">,</span> <span class="n">Robotiq2FStatus</span><span class="p">,</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_monitor_callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">power_monitor</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/ur_hardware_interface/robot_mode&#39;</span><span class="p">,</span> <span class="n">RobotMode</span><span class="p">,</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">power_monitor_callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_publisher</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Publisher</span><span class="p">(</span><span class="s1">&#39;/Robotiq2F/command_interface&#39;</span><span class="p">,</span> <span class="n">Robotiq2FCommand</span><span class="p">,</span> <span class="n">queue_size</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Waiting for </span><span class="si">{</span><span class="mi">5</span><span class="si">}</span><span class="s1"> seconds so publishers and subscribers register correctly&#39;</span><span class="p">)</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Controller registered successfully and ready to send commands&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ROSException</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="s1">&#39;Unable to assign controller to gripper. Did you start Robotiq Node and powered the arm?&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ROSException</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.calibrate"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.calibrate">[docs]</a>    <span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Fully open and closes the gripper to record internal binary. Must be executed without any obstructions as this can dramatically influence gripper operations!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (int, int): lower and upper binary limit (default 0x00 to 0xFF or 0 to 255)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_warn</span><span class="p">(</span><span class="s1">&#39;Calibrating binary limits&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_open</span><span class="p">()</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">current_position</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_close</span><span class="p">()</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">lower</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">current_position</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_open</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="s1">&#39;Calibration completed&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_success</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Position binary range limit is </span><span class="si">{</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.compensated_publish"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.compensated_publish">[docs]</a>    <span class="k">def</span> <span class="nf">compensated_publish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Robotiq2FCommand</span><span class="p">,</span> <span class="n">lag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Publish with a small wait between message for ROS topics to cope with the refresh rate of the gripper.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">lag</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.status_monitor_callback"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.status_monitor_callback">[docs]</a>    <span class="k">def</span> <span class="nf">status_monitor_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for status subsciber&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">msg</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.power_monitor_callback"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.power_monitor_callback">[docs]</a>    <span class="k">def</span> <span class="nf">power_monitor_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for power subsciber&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">power_status</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">mode</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.block"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.block">[docs]</a>    <span class="k">def</span> <span class="nf">block</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convenient snippet for idle looping until gripper finishes motion.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_moving</span><span class="p">():</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div>
+            
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+    <span class="c1">#                              CONVERSION HELPERS                              #</span>
+    <span class="c1"># ---------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="Robotiq2FController.raw_speed_to_mmps"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.raw_speed_to_mmps">[docs]</a>    <span class="k">def</span> <span class="nf">raw_speed_to_mmps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert raw value [0-255] to mm/s&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inv_s</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)),</span> <span class="mi">3</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.raw_speed_to_inps"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.raw_speed_to_inps">[docs]</a>    <span class="k">def</span> <span class="nf">raw_speed_to_inps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert raw value [0-255] to in/s&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_speed_to_mmps</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.mmps_to_raw_speed"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.mmps_to_raw_speed">[docs]</a>    <span class="k">def</span> <span class="nf">mmps_to_raw_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mmps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert mm/s to raw binary value [0-255]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s_ratio</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">mmps</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">speed_range</span><span class="p">))))</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.inps_to_raw_speed"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.inps_to_raw_speed">[docs]</a>    <span class="k">def</span> <span class="nf">inps_to_raw_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert inches/s to raw binary value [0-255]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s_ratio</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">inps</span> <span class="o">*</span> <span class="mf">25.4</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">speed_range</span><span class="p">))))</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.raw_force_to_newton"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.raw_force_to_newton">[docs]</a>    <span class="k">def</span> <span class="nf">raw_force_to_newton</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert raw value [0-255] to N&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inv_f</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)),</span> <span class="mi">3</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.raw_force_to_lbf"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.raw_force_to_lbf">[docs]</a>    <span class="k">def</span> <span class="nf">raw_force_to_lbf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert raw value [0-255] to lbf&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_force_to_newton</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.224809</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Robotiq2FController.newton_to_raw_force"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.newton_to_raw_force">[docs]</a>    <span class="k">def</span> <span class="nf">newton_to_raw_force</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newton</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert N to raw binary value [0-255]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_ratio</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">newton</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">force_range</span><span class="p">))))</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.lbf_to_raw_force"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.lbf_to_raw_force">[docs]</a>    <span class="k">def</span> <span class="nf">lbf_to_raw_force</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lbf</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert lbf to raw binary value [0-255]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_ratio</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">lbf</span> <span class="o">*</span> <span class="mf">4.44822</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">force_range</span><span class="p">))))</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.raw_to_open_mm"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.raw_to_open_mm">[docs]</a>    <span class="k">def</span> <span class="nf">raw_to_open_mm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert raw value [0-255] to mm of opening&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inv_d</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)),</span> <span class="mi">3</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.raw_to_open_in"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.raw_to_open_in">[docs]</a>    <span class="k">def</span> <span class="nf">raw_to_open_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert raw value [0-255] to in of opening&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_to_open_mm</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">/</span> <span class="mf">25.4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.open_mm_to_raw"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.open_mm_to_raw">[docs]</a>    <span class="k">def</span> <span class="nf">open_mm_to_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mm</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert opening in mm to raw binary value [0-255]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_ratio</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stroke</span><span class="p">))))</span></div>
+    
+<div class="viewcode-block" id="Robotiq2FController.open_in_to_raw"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq2FController.open_in_to_raw">[docs]</a>    <span class="k">def</span> <span class="nf">open_in_to_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inches</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert opening in inches to raw binary value [0-255]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_ratio</span><span class="p">(</span><span class="n">clip</span><span class="p">(</span><span class="n">inches</span> <span class="o">*</span> <span class="mf">25.4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stroke</span><span class="p">))))</span></div></div>
+        
+<div class="viewcode-block" id="Robotiq3FController"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq3FController">[docs]</a><span class="k">class</span> <span class="nc">Robotiq3FController</span><span class="p">:</span>
+<div class="viewcode-block" id="Robotiq3FController.__init__"><a class="viewcode-back" href="../robotiq/rvl_robotiq_controller.html#rvl_robotiq_controller.RobotiqController.Robotiq3FController.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Minh Tram.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

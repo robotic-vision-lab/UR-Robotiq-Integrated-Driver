@@ -5,7 +5,7 @@
 Since the documentation is ROS dependant, it must be build within the container after all ROS modules
 are built and sourced properly.
 
-> :warning: Be sure to follow [Quickstart instructions](../../../../documentation/rvl_driver_documentation.pdf) to ensure you have the Docker container! You may skip section 1.3.1 and 1.3.2
+> :warning: Be sure to follow [Quickstart instructions](../../../../documentation/rvl_driver_documentation.pdf) to ensure you have the Docker container! You may skip section 1.3.1 and 1.3.2.
 
 Initial setup includes install [Sphinx](https://www.sphinx-doc.org/en/master/) and some of it's plugins for Markdown support.
 
@@ -17,18 +17,7 @@ This will allow HTML generation. LaTeX requires additional tools to be installed
 will run as root by default. Windows user might see some permission issue and must use an elevated (run as Admin) terminal.
 
 ```console
-$ apt-get -y install texlive-full
-
-OR
-
 $ apt-get -y install texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended latexmk
-```
-
-There is also a script to copy the documentation files and folders directly onto the public release repository. Hence, you must
-also clone the public release repo, but submodules init are not necessary.
-
-```console
-$ git clone --recurse-submodules git@github.com:robotic-vision-lab/UR-Robotiq-Integrated-Driver.git
 ```
 
 ## Making Changes
