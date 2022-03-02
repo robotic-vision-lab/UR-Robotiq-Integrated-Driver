@@ -23,6 +23,7 @@ You are now in the Docker container.
     [...]
 > rebuild_catkin
     [...]
+> pip install sphinx myst-parser sphinx-rtd-theme
 > cd src/rvl_ur_robotiq/sphinx-docgen/
     [make changes to documentation in source/pages/[file].md]
 > make html     # or latexpdf
