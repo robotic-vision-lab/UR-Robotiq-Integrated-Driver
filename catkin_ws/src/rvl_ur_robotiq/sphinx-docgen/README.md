@@ -2,8 +2,11 @@
 
 ## Instruction Summary
 
+> :warning: If you are running on Linux, be sure to read [Docker Post-Installation Setup for Linux](https://docs.docker.com/engine/install/linux-postinstall/)
+
 ```console
-$ sudo apt-get install docker.io    # also see https://docs.docker.com/engine/install/linux-postinstall/
+$ sudo apt-get install docker.io
+$ [do post installation stuff, not applicable on Windows or Mac]
 $ docker pull mqt0029/rvl-ur-robotiq-driver
     [...]
 $ docker tag mqt0029/rvl-ur-robotiq-driver:latest rvl-ur-robotiq-driver:latest
@@ -37,6 +40,7 @@ $ sh catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/update_documentation.sh
 
 The script is written so that where it is called from should not matter.
 
+<!---
 ## Requirements
 
 Since the documentation is ROS dependant, it must be build within the container after all ROS modules
@@ -72,3 +76,4 @@ will be generated in `build/html` or `build/latex` respectively.
 > :warning: The script requires that this repository and the UR-Robotiq-Integrated-Driver are in the same parent directory.
 
 After generation, run the script using `sh update_documentation.sh` **FROM THE HOST** to move and overwrite files on the public release repository and primary folder of this repository.
+--->
