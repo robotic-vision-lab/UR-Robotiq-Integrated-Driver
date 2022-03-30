@@ -1,6 +1,6 @@
 # Sphinx Documentation Generator
 
-## Instructions Summary
+## Instructions for Generating Documentation 
 
 > :warning: If you are running on Linux, please be sure to read the [Docker post-installation steps for Linux](https://docs.docker.com/engine/install/linux-postinstall/).
 
