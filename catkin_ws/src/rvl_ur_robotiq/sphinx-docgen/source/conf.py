@@ -19,7 +19,7 @@ sys.path.append('/root/catkin_ws/src/rvl_ur_robotiq/rvl_ur_remote_dashboard/src/
 
 # -- Project information -----------------------------------------------------
 
-project = 'RVL UR-Robotiq Integrated Driver Documentation'
+project = 'UR-Robotiq Integrated Driver Documentation'
 copyright = '2022, Minh Tram'
 author = 'Minh Tram'
 
