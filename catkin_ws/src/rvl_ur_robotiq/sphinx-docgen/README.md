@@ -29,7 +29,7 @@ You are now in the Docker container.
 > make html     # or latexpdf
 ```
 
-Back on the host machine, after the documentation has been built proceed to run `sh update_documentation.sh` to update the documentation in main directory.
+Back on the host machine, after the documentation has been built, proceed to run `sh update_documentation.sh` to update the documentation in the main directory.
 
 ```console
 $ sh [...]/UR-Robotiq-Integrated-Driver/catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/update_documentation.sh
