@@ -20,7 +20,7 @@ well.
 `URRemoteDashboard` is a wrapper for handling services and status monitoring as
 described on the [ROS Interface page in the UR Driver Repository](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/c3378599d5fa73a261328b326392e847f312ab6b/ur_robot_driver/doc/ROS_INTERFACE.md).
 
-`URCommander` is a wrapper for `MoveIt!` with some functions built-in (e.g.,
+`URCommander` is a wrapper for `MoveIt` with some functions built-in (e.g.,
 pose goal, joint goal, etc.). Additional features are planned for future
 releases.
 

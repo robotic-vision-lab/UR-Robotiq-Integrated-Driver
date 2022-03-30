@@ -141,7 +141,7 @@ accordingly](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob
 ```{warning}
 
 Make sure your robot description is correct! This is *crucial* to generating
-your own URDF and SRDF that MoveIt! uses to plan all subsequent motions.
+your own URDF and SRDF that MoveIt uses to plan all subsequent motions.
 ```
 
 ### Building and Running ROS

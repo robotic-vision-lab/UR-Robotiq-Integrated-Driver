@@ -12,8 +12,8 @@ the `Universal Robots (UR) <https://www.universal-robots.com>`_ ROS Driver. It
 has additional support for a `Robotiq <https://robotiq.com>`_ gripper (e.g.,
 2F) directly attached to the UR tool port. The driver also provides functions
 for actuating the gripper in various modes (e.g., grasp on open/close, specific
-jaw gap, etc.) as well as integrating the `MoveIt Motion Planning Framework
-<https://moveit.ros.org>`_ for tracking the entire setup, UR robot, and Robotiq
+jaw gap, etc.) as well as integrating the `MoveIt <https://moveit.ros.org>`_
+motion planning framework for tracking the entire setup, UR robot, and Robotiq
 gripper.
 
 At the time of this release, the driver is working on our setup with both
