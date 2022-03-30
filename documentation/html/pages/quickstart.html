@@ -55,7 +55,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#inside-the-container">Inside the Container</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#robot-xacro-and-urdf">Robot Xacro and URDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#launching-the-universal-robots-driver">Launching the Universal Robots Driver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#launching-the-ur-driver">Launching the UR Driver</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#building-and-running-ros">Building and Running ROS</a></li>
 </ul>
 </li>
@@ -100,8 +100,8 @@
 <h3>Setup RS485 URCap and <code class="docutils literal notranslate"><span class="pre">socat</span></code><a class="headerlink" href="#setup-rs485-urcap-and-socat" title="Permalink to this headline"></a></h3>
 <p>Follow the <a class="reference external" href="https://github.com/UniversalRobots/Universal_Robots_ToolComm_Forwarder_URCap/blob/master/doc/install_urcap.md">step-by-step
 instructions</a>
-provided by Universal Robots to allow for tool communication through a socket
-on port 54321.</p>
+provided by Universal Robots to allow for tool communication through a socket on
+port 54321.</p>
 <p>The control box filesystem can be accessed via <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">root&#64;[ROBOT-IP]</span></code> with the
 default password <code class="docutils literal notranslate"><span class="pre">easybot</span></code>. You should see the internal UR prompt, i.e.,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Universal Robots A/S Linux image</span>
@@ -194,8 +194,8 @@ robot setup. The file <code class="docutils literal notranslate"><span class="pr
 a good place to start and components should be fairly straightforward to swap
 in and move around.</p>
 </div>
-<div class="section" id="launching-the-universal-robots-driver">
-<h3>Launching the Universal Robots Driver<a class="headerlink" href="#launching-the-universal-robots-driver" title="Permalink to this headline"></a></h3>
+<div class="section" id="launching-the-ur-driver">
+<h3>Launching the UR Driver<a class="headerlink" href="#launching-the-ur-driver" title="Permalink to this headline"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">ur_robot_driver</span></code> package launch file has been modified to work with the
 tool port gripper and our particular setup. You can use the launch file
 <code class="docutils literal notranslate"><span class="pre">[...]/rvl_ur_remote_dashboard/launch/rvl_ur5e_bringup.launch</span></code> as a reference,

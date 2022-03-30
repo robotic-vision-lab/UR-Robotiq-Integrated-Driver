@@ -6,8 +6,8 @@
 
 Follow the [step-by-step
 instructions](https://github.com/UniversalRobots/Universal_Robots_ToolComm_Forwarder_URCap/blob/master/doc/install_urcap.md)
-provided by Universal Robots to allow for tool communication through a socket
-on port 54321.
+provided by Universal Robots to allow for tool communication through a socket on 
+port 54321.
 
 The control box filesystem can be accessed via `ssh root@[ROBOT-IP]` with the
 default password `easybot`. You should see the internal UR prompt, i.e., 
@@ -116,7 +116,7 @@ robot setup. The file `[...]/rvl_robot_description/xacro/rvl_ur5e.xacro` can be
 a good place to start and components should be fairly straightforward to swap
 in and move around.
 
-### Launching the Universal Robots Driver 
+### Launching the UR Driver 
 
 The `ur_robot_driver` package launch file has been modified to work with the
 tool port gripper and our particular setup. You can use the launch file
