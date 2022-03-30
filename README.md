@@ -2,12 +2,13 @@
 
 ## Overview
 
-The UR-Robotiq Integrated Driver is a wrapper for existing ROS services and 
-topics provided by the Universal Robots (UR) ROS driver [1]. It has support for 
-a Robotiq 2F gripper directly attached to the UR tool port [2]. The driver also 
-provides functionality for actuating the gripper in various modes (e.g., grasp 
-on open/close, specific jaw gap, etc.) as well as integrating the MoveIt! motion 
-planning framework which tracks the entire setup, UR robot, and Robotiq gripper.
+The UR-Robotiq Integrated Driver is a wrapper for existing ROS services and
+topics provided by the Universal Robots (UR) ROS driver [1]. It has support for
+a Robotiq 2F gripper directly attached to the UR tool port [2]. The driver also
+provides functionality for actuating the gripper in various modes (e.g., grasp
+on open/close, specific jaw gap, etc.) as well as integrating the MoveIt Motion
+Planning Framework [3] which tracks the entire setup, UR robot, and Robotiq
+gripper.
 
 ## Citation
 
@@ -41,3 +42,4 @@ Docgen Instructions](catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/README.md).
 
 [1] [Official Universal Robot ROS 1 Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver)  
 [2] [ROS Industrial Robotiq](https://wiki.ros.org/robotiq)
+[3] [MoveIt Motion Planning Framework](https://moveit.ros.org)
