@@ -2,7 +2,7 @@
 
 ## Instructions Summary
 
-> :warning: If you are running on Linux, please be sure to read [Docker Post-Installation Setup for Linux](https://docs.docker.com/engine/install/linux-postinstall/)
+> :warning: If you are running on Linux, please be sure to read the [Docker post-installation steps for Linux](https://docs.docker.com/engine/install/linux-postinstall/)
 
 ```console
 $ sudo apt-get install docker.io
