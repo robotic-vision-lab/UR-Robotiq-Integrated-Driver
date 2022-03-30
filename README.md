@@ -36,7 +36,7 @@ The documentation is generated using Sphinx and is available in
 [PDF](documentation/rvl_driver_documentation.pdf) formats. For instructions on 
 how to regenerate the documentation based on updated versions of the software,
 please refer to 
-[Sphinx Docgen Instructions](catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/README.md).
+[Sphinx Docgen instructions](catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/README.md).
 
 ## References
 
