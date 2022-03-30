@@ -42,20 +42,20 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#universal-robot-setup">Universal Robot Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#universal-robots-setup">Universal Robots Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#setup-rs485-urcap-and-socat">Setup RS485 URCap and <code class="docutils literal notranslate"><span class="pre">socat</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#docker-environment-setup">Docker Environment Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#installing-docker">Installing Docker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#clone-the-repository">Clone the Repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clone-the-source-code-repository">Clone the Source Code Repository</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#build-or-pull-the-docker-image">Build or Pull the Docker Image</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-the-ros-container">Creating the ROS Container</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#inside-the-container">Inside the container</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#inside-the-container">Inside the Container</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#robot-xacro-and-urdf">Robot Xacro and URDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#universal-robots-driver-bringup">Universal Robots Driver Bringup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#launching-the-universal-robots-driver">Launching the Universal Robots Driver</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#building-and-running-ros">Building and Running ROS</a></li>
 </ul>
 </li>
@@ -94,28 +94,30 @@
              
   <div class="section" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline"></a></h1>
-<div class="section" id="universal-robot-setup">
-<h2>Universal Robot Setup<a class="headerlink" href="#universal-robot-setup" title="Permalink to this headline"></a></h2>
+<div class="section" id="universal-robots-setup">
+<h2>Universal Robots Setup<a class="headerlink" href="#universal-robots-setup" title="Permalink to this headline"></a></h2>
 <div class="section" id="setup-rs485-urcap-and-socat">
 <h3>Setup RS485 URCap and <code class="docutils literal notranslate"><span class="pre">socat</span></code><a class="headerlink" href="#setup-rs485-urcap-and-socat" title="Permalink to this headline"></a></h3>
-<p>Follow the <a class="reference external" href="https://github.com/UniversalRobots/Universal_Robots_ToolComm_Forwarder_URCap/blob/master/doc/install_urcap.md">step by step instructions</a>
-provided by Universal Robots to allow tool communication via a socket on port 54321.</p>
-<p>The control box file system can be accessing via <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">root&#64;[ROBOT-IP]</span></code> with the default password
-<code class="docutils literal notranslate"><span class="pre">easybot</span></code>. You should see the internal UR prompt, something along the line of</p>
+<p>Follow the <a class="reference external" href="https://github.com/UniversalRobots/Universal_Robots_ToolComm_Forwarder_URCap/blob/master/doc/install_urcap.md">step-by-step
+instructions</a>
+provided by Universal Robots to allow for tool communication through a socket
+on port 54321.</p>
+<p>The control box filesystem can be accessed via <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">root&#64;[ROBOT-IP]</span></code> with the
+default password <code class="docutils literal notranslate"><span class="pre">easybot</span></code>. You should see the internal UR prompt, i.e.,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Universal Robots A/S Linux image</span>
 
 <span class="go">Production image</span>
 <span class="gp">root@ur-[serial]:~#</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">socat</span></code> can be installed from there from source or using a package manager. You may
-want to use the attached <code class="docutils literal notranslate"><span class="pre">socat-robotiq-gripper.service</span></code> so <code class="docutils literal notranslate"><span class="pre">socat</span></code> starts every time on system
-power on.</p>
-<p>To setup the service file, just put it in <code class="docutils literal notranslate"><span class="pre">/ect/systemd/system/</span></code> and run</p>
+<p><code class="docutils literal notranslate"><span class="pre">socat</span></code> can then be installed either from source or using a package manager.
+You may want to use the attached <code class="docutils literal notranslate"><span class="pre">socat-robotiq-gripper.service</span></code> so that
+<code class="docutils literal notranslate"><span class="pre">socat</span></code> starts up every time the system is powered on.</p>
+<p>To setup the service file, just place it in <code class="docutils literal notranslate"><span class="pre">/etc/systemd/system/</span></code> and run</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo systemctl <span class="nb">enable</span> socat-robotiq-gripper.service
 </pre></div>
 </div>
-<p>which will starts the <code class="docutils literal notranslate"><span class="pre">socat</span></code> service on boot.</p>
+<p>which will start the <code class="docutils literal notranslate"><span class="pre">socat</span></code> service on boot.</p>
 </div>
 </div>
 <div class="section" id="docker-environment-setup">
@@ -125,14 +127,14 @@ power on.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo apt-get install docker.io
 </pre></div>
 </div>
-<p>or follow Docker on WSL 2 backend installation guide at <a class="reference external" href="https://docs.docker.com/get-docker/">Get Docker</a>.</p>
+<p>or follow the WSL 2 backend installation guide at <a class="reference external" href="https://docs.docker.com/get-docker/">Get Docker</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you are on Linux, be sure to follow <a class="reference external" href="https://docs.docker.com/engine/install/linux-postinstall/">Docker Post-Installation Steps</a>.</p>
+<p>If you are using a Linux distribution, be sure to follow <a class="reference external" href="https://docs.docker.com/engine/install/linux-postinstall/">Docker Post-Installation Steps</a>.</p>
 </div>
 </div>
-<div class="section" id="clone-the-repository">
-<h3>Clone the Repository<a class="headerlink" href="#clone-the-repository" title="Permalink to this headline"></a></h3>
+<div class="section" id="clone-the-source-code-repository">
+<h3>Clone the Source Code Repository<a class="headerlink" href="#clone-the-source-code-repository" title="Permalink to this headline"></a></h3>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone --recurse-submodules https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver
 </pre></div>
 </div>
@@ -144,8 +146,12 @@ power on.</p>
 <span class="gp">$ </span>docker build -t rvl-ur-robotiq-driver -f Dockerfile.noetic .
 </pre></div>
 </div>
-<p>or you can pull it directly from Docker Hub with <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">pull</span> <span class="pre">mqt0029/rvl-ur-robotiq-driver:latest</span></code>. If you pulled from Docker Hub,
-be sure to retag your image to <code class="docutils literal notranslate"><span class="pre">rvl-ur-robotiq-driver:latest</span></code></p>
+<p>or you can pull it directly from Docker Hub with</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>docker pull mqt0029/rvl-ur-robotiq-driver:latest<span class="sb">`</span> 
+</pre></div>
+</div>
+<p>If you pulled from Docker Hub, then be sure to retag your image to
+<code class="docutils literal notranslate"><span class="pre">rvl-ur-robotiq-driver:latest</span></code></p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>docker tag mqt0029/rvl-ur-robotiq-driver:latest rvl-ur-robotiq-driver:latest
 </pre></div>
 </div>
@@ -157,13 +163,15 @@ be sure to retag your image to <code class="docutils literal notranslate"><span 
 <p class="admonition-title">Note</p>
 <p>Be sure to check your image name before running the script.</p>
 </div>
-<p>The included <code class="docutils literal notranslate"><span class="pre">[windows_]launch_docker_container.sh</span></code> is a useful script in creating and accessing
-docker containers created from the built/pulled image. Simply run</p>
+<p>The included <code class="docutils literal notranslate"><span class="pre">[windows_]launch_docker_container.sh</span></code> is a useful script for
+creating and accessing docker containers created from the built/pulled image.
+Simply run</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sh launch_docker_container.sh
 </pre></div>
 </div>
-<p>First run will create the container if it is not already existed. Subsequent run will attached the terminal
-to the docker container via <code class="docutils literal notranslate"><span class="pre">bash</span></code>. At this point, you should see the following prompt:</p>
+<p>The first run will create the container if it does not already exist.
+Subsequent runs will attach the terminal to the docker container via <code class="docutils literal notranslate"><span class="pre">bash</span></code>.
+At this point, you should see the following prompt</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">[...]</span>
 <span class="go">root ~/catkin_ws</span>
 <span class="go">&gt; </span>
@@ -172,20 +180,26 @@ to the docker container via <code class="docutils literal notranslate"><span cla
 </div>
 </div>
 <div class="section" id="inside-the-container">
-<h2>Inside the container<a class="headerlink" href="#inside-the-container" title="Permalink to this headline"></a></h2>
-<p>With our specific setup of running UR5e and Robotiq 2F-85 gripper, we have customized the accompanying <code class="docutils literal notranslate"><span class="pre">xacro</span></code> (hence, also includes generated
-<code class="docutils literal notranslate"><span class="pre">urdf</span></code>) to match our specific machine description. You may want to modify the launch file to use the correct files for your setup.</p>
-<p>While the base path is commonly <code class="docutils literal notranslate"><span class="pre">[...]/catkin_ws/src</span></code>, this is not always the case. Paths will be relative to where you place your ROS packages.</p>
+<h2>Inside the Container<a class="headerlink" href="#inside-the-container" title="Permalink to this headline"></a></h2>
+<p>With our setup using a UR5e and Robotiq 2F-85 gripper, we have customized the
+accompanying <code class="docutils literal notranslate"><span class="pre">xacro</span></code> (which also includes the generated <code class="docutils literal notranslate"><span class="pre">urdf</span></code>) to match our
+specific machine description. You may want to modify the launch file to use the
+correct files for your own setup.</p>
+<p>While the base path is commonly <code class="docutils literal notranslate"><span class="pre">[...]/catkin_ws/src</span></code>, this is not always the
+case. Paths will be relative to where you place your ROS packages.</p>
 <div class="section" id="robot-xacro-and-urdf">
 <h3>Robot Xacro and URDF<a class="headerlink" href="#robot-xacro-and-urdf" title="Permalink to this headline"></a></h3>
-<p>The included ROS package <code class="docutils literal notranslate"><span class="pre">rvl_robot_description</span></code> contains an example of our robot setup. The file <code class="docutils literal notranslate"><span class="pre">[...]/rvl_robot_description/xacro/rvl_ur5e.xacro</span></code>
-can be a good place to start and components should be fairly straightforward to swap in and move around.</p>
+<p>The included ROS package <code class="docutils literal notranslate"><span class="pre">rvl_robot_description</span></code> contains an example of our
+robot setup. The file <code class="docutils literal notranslate"><span class="pre">[...]/rvl_robot_description/xacro/rvl_ur5e.xacro</span></code> can be
+a good place to start and components should be fairly straightforward to swap
+in and move around.</p>
 </div>
-<div class="section" id="universal-robots-driver-bringup">
-<h3>Universal Robots Driver Bringup<a class="headerlink" href="#universal-robots-driver-bringup" title="Permalink to this headline"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">ur_robot_driver</span></code> package launch file has been modified to work with the tool port gripper and our specific setup. You can use the launch file
-<code class="docutils literal notranslate"><span class="pre">[...]/rvl_ur_remote_dashboard/launch/rvl_ur5e_bringup.launch</span></code> as a reference, and modify it to fit your setup. The important section is highlighted
-below.</p>
+<div class="section" id="launching-the-universal-robots-driver">
+<h3>Launching the Universal Robots Driver<a class="headerlink" href="#launching-the-universal-robots-driver" title="Permalink to this headline"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ur_robot_driver</span></code> package launch file has been modified to work with the
+tool port gripper and our particular setup. You can use the launch file
+<code class="docutils literal notranslate"><span class="pre">[...]/rvl_ur_remote_dashboard/launch/rvl_ur5e_bringup.launch</span></code> as a reference,
+and modify it to fit your setup. The important sections are highlighted below.</p>
 <div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;robot_ip&quot;</span> <span class="na">default=</span><span class="s">&quot;192.168.1.147&quot;</span> <span class="na">doc=</span><span class="s">&quot;IP address by which ...&quot;</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;robot_description_file&quot;</span> <span class="na">default=</span><span class="s">&quot;$(find rvl_ur_remote_dashboard)/launch/load_rvl_ur5e.launch&quot;</span> <span class="na">doc=</span><span class="s">&quot;Robot description launch file.&quot;</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;arg</span> <span class="na">name=</span><span class="s">&quot;kinematics_config&quot;</span> <span class="na">default=</span><span class="s">&quot;$(find rvl_ur_remote_dashboard)/configs/ur5e_calibration.yaml&quot;</span> <span class="na">doc=</span><span class="s">&quot;Kinematics config file used ...&quot;</span><span class="nt">/&gt;</span>
@@ -196,16 +210,19 @@ below.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Double check your calibration file is correct or <a class="reference external" href="https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_calibration/README.md">retrieve it accordingly</a>.</p>
+<p>Double check that your calibration file is correct or <a class="reference external" href="https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_calibration/README.md">retrieve it
+accordingly</a>.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Make sure your robot description is correct! This is crucial to generating your own URDF and SRDF that MoveIt! uses to plan all subsequent motion!</p>
+<p>Make sure your robot description is correct! This is <em>crucial</em> to generating
+your own URDF and SRDF that MoveIt! uses to plan all subsequent motions.</p>
 </div>
 </div>
 <div class="section" id="building-and-running-ros">
 <h3>Building and Running ROS<a class="headerlink" href="#building-and-running-ros" title="Permalink to this headline"></a></h3>
-<p>A few aliases has been provided to quickly setup ROS dependencies and paths. <code class="docutils literal notranslate"><span class="pre">bash</span></code> will also automatically source <code class="docutils literal notranslate"><span class="pre">devel/setup.bash</span></code>.</p>
+<p>A few aliases have been provided to quickly setup ROS dependencies and paths.
+<code class="docutils literal notranslate"><span class="pre">bash</span></code> will also automatically source <code class="docutils literal notranslate"><span class="pre">devel/setup.bash</span></code>.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>run_rosdep
 <span class="go">[...] installing dependencies</span>
 
@@ -219,10 +236,12 @@ below.</p>
 </div>
 <div class="section" id="debugging">
 <h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline"></a></h2>
-<p>Since this driver is built inside a Docker container, the most common issue is networking. A good place to start is if all the ports (or network
-interface) is exposed properly, the robot IP is correct, and there is nothing interfering with ROS communications both ways. Otherwise, the host
-OS should not be a problem.</p>
-<p>However, should any issues arise, please <a class="reference external" href="https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver/issues">open an issue on our GitHub repository</a>.</p>
+<p>Since this driver is built inside a Docker container, the most common issue is
+networking. A good place to start is to ensure that all the ports (or the
+network interface) are properly exposed, the robot IP is correct, and there is
+nothing interfering with ROS communications both ways. Otherwise, the host OS
+should not be a problem. However, should any issues arise, please <a class="reference external" href="https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver/issues">open an
+issue on our GitHub repository</a>.</p>
 </div>
 </div>
 
