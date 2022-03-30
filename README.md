@@ -34,7 +34,7 @@ Otherwise, the static BibTex entry below can be used.
 The documentation is generated using Sphinx and is available in
 [HTML](documentation/html/_modules/index.html) and
 [PDF](documentation/rvl_driver_documentation.pdf) formats. For instructions on 
-how to regenerate documentation based on updated versions of the software,
+how to regenerate the documentation based on updated versions of the software,
 please refer to 
 [Sphinx Docgen Instructions](catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/README.md).
 
