@@ -31,7 +31,7 @@ Otherwise, the static BibTex entry below can be used.
 
 ## Documentation
 
-The documentation is generated using Sphinx and is available in
+The documentation is generated using Sphinx and it is available in
 [HTML](documentation/html/_modules/index.html) and
 [PDF](documentation/rvl_driver_documentation.pdf) formats. For instructions on 
 how to regenerate the documentation based on updated versions of the software,
