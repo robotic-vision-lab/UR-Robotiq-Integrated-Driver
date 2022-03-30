@@ -1,4 +1,4 @@
-# RVL UR-Robotiq API
+# UR-Robotiq Integrated Driver API
 
 Due to the way ROS structures Python source code and the workspace setup, the
 module/package usage terminology may be confusing here.
