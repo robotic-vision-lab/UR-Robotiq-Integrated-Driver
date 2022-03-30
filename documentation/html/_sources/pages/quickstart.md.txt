@@ -42,7 +42,7 @@ $ sudo apt-get install docker.io
 or follow the WSL 2 backend installation guide at [Get Docker](https://docs.docker.com/get-docker/).
 
 :::{note} 
-If you are using a Linux distribution, be sure to follow [Docker Post-Installation Steps](https://docs.docker.com/engine/install/linux-postinstall/).
+If you are using a Linux distribution, be sure to follow the [Docker post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
 :::
 
 ### Clone the Source Code Repository
