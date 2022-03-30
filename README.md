@@ -40,6 +40,6 @@ please refer to
 
 ## References
 
-[1] [Official Universal Robot ROS 1 Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver)  
-[2] [ROS Industrial Robotiq](https://wiki.ros.org/robotiq)  
+[1] [Official Universal Robots ROS 1 Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver)  
+[2] [ROS Robotiq Driver](https://wiki.ros.org/robotiq)  
 [3] [MoveIt](https://moveit.ros.org)
