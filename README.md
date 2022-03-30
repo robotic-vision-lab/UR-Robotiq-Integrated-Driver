@@ -41,5 +41,5 @@ Docgen Instructions](catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/README.md).
 ## References
 
 [1] [Official Universal Robot ROS 1 Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver)  
-[2] [ROS Industrial Robotiq](https://wiki.ros.org/robotiq) 
+[2] [ROS Industrial Robotiq](https://wiki.ros.org/robotiq)  
 [3] [MoveIt Motion Planning Framework](https://moveit.ros.org)
