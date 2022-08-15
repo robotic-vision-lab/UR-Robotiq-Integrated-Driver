@@ -17,7 +17,7 @@ dashboard = URRemoteDashboard()
 
 # release arm brakes
 # if arm is not powered, this will power the arm.
-dashboard.release_brakes()
+dashboard.power_on_arm()
 
 # wait for user to press enter
 _ = input('Press any key to continue...')
