@@ -6,7 +6,7 @@ from typing import Union, Tuple
 from math import isclose
 
 from rvl_robotiq_controller.msg import Robotiq2FCommand, Robotiq2FStatus
-from Robotiq2FSupport import fault_mapping
+from rvl_robotiq_controller.Robotiq2FSupport import fault_mapping
 from rvl_utilities.CustomLogger import ColorLogger
 
 from ur_dashboard_msgs.msg import RobotMode

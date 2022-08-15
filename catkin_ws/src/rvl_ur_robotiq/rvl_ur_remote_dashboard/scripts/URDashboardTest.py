@@ -1,29 +1,33 @@
+#!/usr/bin/env python3
+
 import rospy
 import sys
 
 from rvl_ur_remote_dashboard.URRemoteDashboard import URRemoteDashboard
 from rvl_ur_motion_planner.URMoveitCommander import URCommander
+from rvl_robotiq_controller.RobotiqController import Robotiq2FController
 
+# init node
 import moveit_commander
-
 moveit_commander.roscpp_initialize(sys.argv)
 rospy.init_node('ur_remote_dashboard_node', anonymous=True)
 
-u = URRemoteDashboard()
-# u.power_off_arm()
+# connect to UR dashboard.
+dashboard = URRemoteDashboard()
 
-# u.load_program('jerry_remote.installation', ptype='i')
-# u.load_program('jerry_ext.urp', ptype='p')
-# u.cold_boot()
-# u.connect_dashboard()
-# u.start_loaded_program()
-u.stop_loaded_program()
+# release arm brakes
+# if arm is not powered, this will power the arm.
+dashboard.release_brakes()
 
-# c = URCommander()
-# c.home()
-# c.go_to_preset_location('fancy_home')
+# wait for user to press enter
+_ = input('Press any key to continue...')
 
-# u = URRemoteDashboard()
-# u.get_safety_mode()
-# u.release_brakes()
-# u.power_off_arm()
+# connect to gripper
+gripper = Robotiq2FController(stroke=85, initialize=True, startup_reset=True)
+
+# wait for user to press enter
+# you may want to place a solid object between the jaws of the gripper now
+_ = input('Press any key to continue...')
+
+# auto-close until fully closed or obstructed
+gripper.auto_close()
