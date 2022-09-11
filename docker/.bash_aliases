@@ -9,9 +9,6 @@ source ${CATKIN_WS}/devel/setup.bash
 # auto cd into catkin workspace instead of / (base path)
 cd ${CATKIN_WS}
 
-# ugly Windows highlights
-export LS_COLORS=$LS_COLORS:'ow=1;34:';
-
 # nice, shorter prompt
 PS1='\n\[\e[0;38;5;122m\]\u \[\e[0;38;5;147m\]\w\n\[\e[0m\]> \[\e[0m\]'
 

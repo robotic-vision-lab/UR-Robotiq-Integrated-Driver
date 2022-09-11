@@ -27,7 +27,7 @@ class Robotiq2FController:
         Raises:
             ValueError: Invalid stroke width, must be 85mm or 140mm
         """
-        
+
         # check definition
         if stroke != 85 and stroke != 140:
             raise ValueError('2F Gripper stroke must be 85 or 140 mm')
@@ -73,7 +73,7 @@ class Robotiq2FController:
         self.inv_f   = poly1d(polyfit((0, 255), self.force_range, 1))
         self.inv_s   = poly1d(polyfit((0, 255), self.speed_range, 1))
         self.inv_d   = poly1d(polyfit(self.binary_range, (self.stroke, 0), 1))
-        
+
     # ---------------------------------------------------------------------------- #
     #                               GRIPPER ACTUATION                              #
     # ---------------------------------------------------------------------------- #
@@ -107,7 +107,7 @@ class Robotiq2FController:
         command = Robotiq2FCommand()
         command.activate = 1
         command.goto = 1
-        command.position = 255
+        command.position = 0
         command.speed = self.speed if alt_speed is None else int(clip(alt_speed, 0, 255))
         command.force = self.force if alt_force is None else int(clip(alt_force, 0, 255))
         self.compensated_publish(command)
@@ -131,7 +131,7 @@ class Robotiq2FController:
         self.compensated_publish(command)
         if blocking:
             self.block()
-    
+
     def grasp_soft_regrasp(self, opening: bool = False, alt_speed: int = None, blocking: bool = True) -> None:
         """Soft grasp preset, grasping with force set to 1 (approximately 20 N) with Re-Grasp enabled.
 
@@ -219,7 +219,7 @@ class Robotiq2FController:
                 self.block()
 
     def set_gripper_speed(self, value: Union[int, float], unit: str = 'mm/s') -> None:
-        """Set the internal (default) speed setting of the gripper. 
+        """Set the internal (default) speed setting of the gripper.
 
         Args:
             value (Union[int, float]): New speed value.
@@ -238,7 +238,7 @@ class Robotiq2FController:
                 self.speed = self.inps_to_raw_speed(value)
 
     def set_gripper_force(self, value: Union[int, float], unit: str = 'N') -> None:
-        """Set the internal (default) force setting of the gripper. 
+        """Set the internal (default) force setting of the gripper.
 
         Args:
             value (Union[int, float]): New force value.
@@ -255,7 +255,7 @@ class Robotiq2FController:
                 self.force = self.newton_to_raw_force(value)
             else:
                 self.force = self.lbf_to_raw_force(value)
-    
+
     def send_raw_position_command(self, position: int, speed: int, force: int, blocking: bool = True) -> None:
         """Send a position request command to the gripper ignoring internal settings.
 
@@ -274,7 +274,7 @@ class Robotiq2FController:
         self.compensated_publish(command)
         if blocking:
             self.block()
-        
+
     # ---------------------------------------------------------------------------- #
     #                            GRIPPING/MOVING STATUS                            #
     # ---------------------------------------------------------------------------- #
@@ -293,7 +293,7 @@ class Robotiq2FController:
         else:
             self.logger.log_info('No object detected')
         return (self.status.object_status == 1 or self.status.object_status == 2)
-    
+
     # ---------------------------------------------------------------------------- #
     #                              ACTIVATION CONTROL                              #
     # ---------------------------------------------------------------------------- #
@@ -318,7 +318,7 @@ class Robotiq2FController:
         command.activate = 1
         self.compensated_publish(command)
         rospy.sleep(1)
-            
+
     # ---------------------------------------------------------------------------- #
     #                             SUPPORTING FUNCTIONS                             #
     # ---------------------------------------------------------------------------- #
@@ -386,7 +386,7 @@ class Robotiq2FController:
         self.logger.log_success('Calibration completed')
         self.logger.log_success(f'Position binary range limit is {(lower, upper)}')
         return tuple(lower, upper)
-    
+
     def compensated_publish(self, command: Robotiq2FCommand, lag: float = 0.1):
         """Publish with a small wait between message for ROS topics to cope with the refresh rate of the gripper."""
         self.command_publisher.publish(command)
@@ -404,7 +404,7 @@ class Robotiq2FController:
         """Convenient snippet for idle looping until gripper finishes motion."""
         while self.is_moving():
             rospy.sleep(0.1)
-            
+
     # ---------------------------------------------------------------------------- #
     #                              CONVERSION HELPERS                              #
     # ---------------------------------------------------------------------------- #
@@ -412,23 +412,23 @@ class Robotiq2FController:
     def raw_speed_to_mmps(self, raw: int) -> float:
         """Convert raw value [0-255] to mm/s"""
         return round(self.inv_s(clip(raw, 0, 255)), 3)
-    
+
     def raw_speed_to_inps(self, raw: int) -> float:
         """Convert raw value [0-255] to in/s"""
         return round(self.raw_speed_to_mmps(raw) / 25.4, 3)
-    
+
     def mmps_to_raw_speed(self, mmps: Union[int, float]) -> int:
         """Convert mm/s to raw binary value [0-255]"""
         return int(round(self.s_ratio(clip(mmps, *self.speed_range))))
-    
+
     def inps_to_raw_speed(self, inps: Union[int, float]) -> int:
         """Convert inches/s to raw binary value [0-255]"""
         return int(round(self.s_ratio(clip(inps * 25.4, *self.speed_range))))
-    
+
     def raw_force_to_newton(self, raw: int) -> float:
         """Convert raw value [0-255] to N"""
         return round(self.inv_f(clip(raw, 0, 255)), 3)
-    
+
     def raw_force_to_lbf(self, raw: int) -> float:
         """Convert raw value [0-255] to lbf"""
         return round(self.raw_force_to_newton(raw) * 0.224809, 3)
@@ -436,27 +436,27 @@ class Robotiq2FController:
     def newton_to_raw_force(self, newton: Union[int, float]) -> int:
         """Convert N to raw binary value [0-255]"""
         return int(round(self.f_ratio(clip(newton, *self.force_range))))
-    
+
     def lbf_to_raw_force(self, lbf: Union[int, float]) -> int:
         """Convert lbf to raw binary value [0-255]"""
         return int(round(self.f_ratio(clip(lbf * 4.44822, *self.force_range))))
-    
+
     def raw_to_open_mm(self, raw: int) -> float:
         """Convert raw value [0-255] to mm of opening"""
         return round(self.inv_d(clip(raw, 0, 255)), 3)
-    
+
     def raw_to_open_in(self, raw: int) -> float:
         """Convert raw value [0-255] to in of opening"""
         return round(self.raw_to_open_mm(raw) / 25.4, 3)
-    
+
     def open_mm_to_raw(self, mm: Union[int, float]) -> int:
         """Convert opening in mm to raw binary value [0-255]"""
         return int(round(self.d_ratio(clip(mm, 0, self.stroke))))
-    
+
     def open_in_to_raw(self, inches: Union[int, float]) -> int:
         """Convert opening in inches to raw binary value [0-255]"""
         return int(round(self.d_ratio(clip(inches * 25.4, 0, self.stroke))))
-        
+
 class Robotiq3FController:
     def __init__(self):
         raise NotImplementedError
