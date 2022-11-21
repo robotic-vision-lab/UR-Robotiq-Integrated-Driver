@@ -1,6 +1,6 @@
-# UR-Robotiq Integrated Driver
+## UR-Robotiq Integrated Driver
 
-## Overview
+### Overview
 
 The UR-Robotiq Integrated Driver is a wrapper for existing ROS services and
 topics provided by the Universal Robots (UR) ROS driver [1]. It has support for
@@ -10,7 +10,7 @@ on open/close, specific jaw gap, etc.) as well as integrating the MoveIt [3]
 motion planning framework which tracks the entire setup, UR robot, and Robotiq
 gripper.
 
-## Citation
+### Citation
 
 If you find this code useful, then please consider citing our work.
 
@@ -29,7 +29,7 @@ Otherwise, the static BibTex entry below can be used.
 }
 ```
 
-## Documentation
+### Documentation
 
 The documentation is generated using Sphinx and it is available in
 [HTML](documentation/html/_modules/index.html) and
@@ -38,7 +38,7 @@ how to regenerate the documentation based on updated versions of the software,
 please refer to 
 [Sphinx Docgen instructions](catkin_ws/src/rvl_ur_robotiq/sphinx-docgen/README.md).
 
-## References
+### References
 
 [1] [Official Universal Robots ROS 1 Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver)  
 [2] [ROS Robotiq Driver](https://wiki.ros.org/robotiq)  
