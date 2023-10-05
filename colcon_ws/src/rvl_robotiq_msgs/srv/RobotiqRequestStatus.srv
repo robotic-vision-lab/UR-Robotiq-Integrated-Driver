@@ -1,0 +1,4 @@
+---
+Robotiq2FStatus status
+bool success
+string message

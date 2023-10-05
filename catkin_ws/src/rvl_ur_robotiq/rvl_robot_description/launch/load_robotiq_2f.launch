@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <rosparam command="load" file="$(find robotiq_ros_wrapper)/config/settings.yaml"/>
-
-    <node name="robotiq_interface_node" pkg="robotiq_ros_wrapper" type="Robotiq2FNode.py" output="screen"/>
-</launch>

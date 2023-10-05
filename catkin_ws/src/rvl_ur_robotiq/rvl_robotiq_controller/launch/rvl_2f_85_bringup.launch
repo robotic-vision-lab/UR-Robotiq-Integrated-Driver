@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <rosparam command="load" file="$(find rvl_robotiq_controller)/configs/calibration.yaml"/>
-    <node name="robotiq_interface_node" pkg="rvl_robotiq_controller" type="Robotiq2F85Node.py" output="screen" respawn="true"/>
-</launch>

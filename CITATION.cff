@@ -1,0 +1,40 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: RVL UR-Robotiq Integrated Driver
+message: >-
+  If you use this software, please cite it using these
+  metadata.
+type: software
+authors:
+  - given-names: Minh
+    family-names: Tram
+    email: minh.tram@mavs.uta.edu
+    affiliation: >-
+      The University of Texas at Arlington - Robotic Vision
+      Laboratory
+  - given-names: William
+    family-names: Beksi
+    email: william.beksi@uta.edu
+    affiliation: >-
+      The University of Texas at Arlington - Robotic Vision
+      Laboratory
+repository-code: >-
+  https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver
+abstract: >-
+  This repository provides Python 3 packages designed for
+  ROS 2 Humble to control the Robotiq 2F gripper attached to
+  Universal Robot (UR) robot arms using the toolport
+  available on the robot arms' wrist.
+keywords:
+  - Universal Robot
+  - Robotiq
+  - ROS 2 Humble
+  - ros
+  - robotic
+  - gripper
+  - driver
+license: Apache-2.0
+version: 1.0.0
+date-released: '2023-10-05'
