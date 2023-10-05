@@ -17,13 +17,13 @@ You must complete the following steps before using this repository:
 
 1. Clone the repository
 
-```shell
+```console
 user@host:~$ git clone https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver.git
 ```
 
 2. Build the Docker image
 
-```shell
+```console
 user@host:~$ cd UR-Robotiq-Integrated-Driver/docker
 user@host:~/UR-Robotiq-Integrated-Driver/docker$ docker build -t rvl-ur-robotiq-driver:latest
 # [...]
@@ -107,7 +107,7 @@ fingers. The gripper is now ready to receive commands.
 
 ### Topics
 
-```console
+```
 /robotiq/joint_states
 /robotiq/status
 ```
@@ -139,7 +139,22 @@ if you have ROS 2 Humble on your host machine.
 
 If you find this code useful, then please consider citing our work.
 
-You can use the "Cite this repository" feature under About section for automatic generation of APA and BibTex references.
+You can use the "Cite this repository" feature under About section for automatic generation of APA and BibTex
+references.
+
+![Cite this repository](images/cite.png)
+
+A raw BibTex entry is also provided below:
+
+```bibtex
+@software{tram2023ur,
+  author={Tram, Minh},
+  title={{UR-Robotiq Integrated Driver}},
+  url={https://github.com/robotic-vision-lab/UR-Robotiq-Integrated-Driver}
+  version={1.0.0},
+  year={2023}
+}
+```
 
 ## Troubleshooting
 
